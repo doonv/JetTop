@@ -36,7 +36,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -115,7 +117,7 @@ private fun DayTabs(days: List<DaySchedule>) {
 
 @Composable
 private fun DayPage(day: DaySchedule, colors: Map<String, Color>) {
-    val hours = day.hoursData.filter { !it.hourName.isNullOrBlank() && it.schedule.isNotEmpty() }
+    val hours = day.hoursData.dropLastWhile { it.schedule.isEmpty() }
     if (hours.isEmpty()) {
         Box(
             Modifier
@@ -136,44 +138,69 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
         Modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     ) {
         items(hours, key = { it.hour }) { h ->
-            h.schedule.forEach { lesson ->
-                val cancelled = lesson.changes.any { it.isClassCancel }
-                val solid = colors[LessonColors.keyOf(lesson)] ?: Color.Red
-                val bg = solid.copy(alpha = 0.2f)
+            if (h.schedule.isEmpty()) {
                 Row(
                     Modifier.padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
                         text = h.hourName?.substringAfter("       ") ?: "${h.hour}",
-                        Modifier.weight(1f)
+                        Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically)
                     )
-                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                        Box(
+                    Text(
+                        text = stringResource(R.string.window),
+                        textAlign = TextAlign.Center,
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier
+                            .weight(2f)
+                            .padding(6.dp)
+                            .alpha(0.2f)
+                    )
+                }
+            } else {
+                h.schedule.forEach { lesson ->
+                    val cancelled = lesson.changes.any { it.isClassCancel }
+                    val solid = colors[LessonColors.keyOf(lesson)] ?: Color.Red
+                    val bg = solid.copy(alpha = 0.2f)
+                    Row(
+                        Modifier.padding(vertical = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = h.hourName?.substringAfter("       ") ?: "${h.hour}",
                             Modifier
-                                .weight(2f)
-                                .let { if (cancelled) it.alpha(0.3f) else it }
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(bg)
-                                .rightBorder(3.dp, solid)
-                                .padding(horizontal = 16.dp, vertical = 4.dp)) {
-                            Column {
-                                Text(
-                                    lesson.subject ?: "-",
-                                    fontWeight = FontWeight.Bold,
-                                    textDecoration = if (cancelled) TextDecoration.LineThrough else null
-                                )
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
+                                .weight(1f)
+                                .align(Alignment.CenterVertically)
+                        )
+                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                            Box(
+                                Modifier
+                                    .weight(2f)
+                                    .let { if (cancelled) it.alpha(0.3f) else it }
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(bg)
+                                    .rightBorder(3.dp, solid)
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)) {
+                                Column {
                                     Text(
-                                        listOfNotNull(
-                                            lesson.teacherPrivateName, lesson.teacherLastName
-                                        ).joinToString(" ").ifBlank { "-" }, fontSize = 14.sp
+                                        lesson.subject ?: "-",
+                                        fontWeight = FontWeight.Bold,
+                                        textDecoration = if (cancelled) TextDecoration.LineThrough else null
                                     )
-                                    lesson.room?.let { Text(it, fontSize = 14.sp) }
+                                    Row(
+                                        Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            listOfNotNull(
+                                                lesson.teacherPrivateName, lesson.teacherLastName
+                                            ).joinToString(" ").ifBlank { "-" }, fontSize = 14.sp
+                                        )
+                                        lesson.room?.let { Text(it, fontSize = 14.sp) }
+                                    }
                                 }
                             }
                         }
