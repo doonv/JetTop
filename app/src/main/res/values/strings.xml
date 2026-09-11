@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">SmarterSchool</string>
+    <string name="error_message">Error: %1$s</string>
+    <string name="retry">Retry</string>
+    <string name="no_data">No data</string>
+    <string name="no_lessons">No lessons this day. webToken expired?</string>
+    <string name="hour">Hour</string>
+    <string name="subject">Subject</string>
+    <string-array name="days">
+        <item>Sunday</item>
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+    </string-array>
 </resources>
