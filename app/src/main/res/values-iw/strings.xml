@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmarterSchool</string>
+    <string name="window">חלון</string>
+    <string-array name="days">
+        <item>א</item>
+        <item>ב</item>
+        <item>ג</item>
+        <item>ד</item>
+        <item>ה</item>
+        <item>ו</item>
+    </string-array>
+    <string name="no_lessons">אין שיעורים ביום זה.</string>
+</resources>
