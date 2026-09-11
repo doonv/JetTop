@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -138,17 +139,19 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
         Modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     ) {
         items(hours, key = { it.hour }) { h ->
+            @Composable
+            fun RowScope.HourText() = Text(
+                text = h.hourName?.substringAfter("       ") ?: "${h.hour}",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
+            )
+
             if (h.schedule.isEmpty()) {
                 Row(
                     Modifier.padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = h.hourName?.substringAfter("       ") ?: "${h.hour}",
-                        Modifier
-                            .weight(1f)
-                            .align(Alignment.CenterVertically)
-                    )
+                    HourText()
                     Text(
                         text = stringResource(R.string.window),
                         textAlign = TextAlign.Center,
@@ -168,12 +171,7 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
                         Modifier.padding(vertical = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = h.hourName?.substringAfter("       ") ?: "${h.hour}",
-                            Modifier
-                                .weight(1f)
-                                .align(Alignment.CenterVertically)
-                        )
+                        HourText()
                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                             Box(
                                 Modifier
