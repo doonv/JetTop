@@ -119,8 +119,9 @@ private fun DayPage(day: DaySchedule, colors: Map<String, Color>) {
     if (hours.isEmpty()) {
         Box(
             Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp), contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
         ) {
             Text(stringResource(R.string.no_lessons))
         }
