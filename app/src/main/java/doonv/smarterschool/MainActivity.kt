@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import doonv.smarterschool.ui.ScheduleScreen
 import doonv.smarterschool.ui.theme.SmarterSchoolTheme
 
@@ -22,7 +21,6 @@ class MainActivity : ComponentActivity() {
                     ScheduleScreen(
                         modifier = Modifier
                             .padding(innerPadding)
-                            .padding(horizontal = 16.dp)
                     )
                 }
             }

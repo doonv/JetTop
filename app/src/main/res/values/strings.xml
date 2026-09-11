@@ -7,11 +7,11 @@
     <string name="hour">Hour</string>
     <string name="subject">Subject</string>
     <string-array name="days">
-        <item>Sunday</item>
-        <item>Monday</item>
-        <item>Tuesday</item>
-        <item>Wednesday</item>
-        <item>Thursday</item>
-        <item>Friday</item>
+        <item>Sun</item>
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
     </string-array>
 </resources>
