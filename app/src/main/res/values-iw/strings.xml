@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">SmarterSchool</string>
     <string name="window">חלון</string>
+    <string name="no_lessons">אין שיעורים ביום זה.</string>
     <string-array name="days">
         <item>א</item>
         <item>ב</item>
@@ -10,5 +11,4 @@
         <item>ה</item>
         <item>ו</item>
     </string-array>
-    <string name="no_lessons">אין שיעורים ביום זה.</string>
 </resources>

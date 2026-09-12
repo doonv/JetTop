@@ -143,7 +143,9 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
             fun RowScope.HourText() = Text(
                 text = h.hourName?.substringAfter("       ") ?: "${h.hour}",
                 textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .weight(1f)
+                    .align(Alignment.CenterVertically)
             )
 
             if (h.schedule.isEmpty()) {
@@ -183,11 +185,18 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
                                     .rightBorder(3.dp, solid)
                                     .padding(horizontal = 16.dp, vertical = 4.dp)) {
                                 Column {
-                                    Text(
-                                        lesson.subject ?: "-",
-                                        fontWeight = FontWeight.Bold,
-                                        textDecoration = if (cancelled) TextDecoration.LineThrough else null
-                                    )
+                                    Row(
+                                        Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            lesson.subject ?: "-",
+                                            fontWeight = FontWeight.Bold,
+                                            textDecoration = if (cancelled) TextDecoration.LineThrough else null
+                                        )
+
+                                        lesson.subjectLevel?.let { Text(it, fontSize = 12.sp) }
+                                    }
                                     Row(
                                         Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
@@ -197,7 +206,7 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
                                                 lesson.teacherPrivateName, lesson.teacherLastName
                                             ).joinToString(" ").ifBlank { "-" }, fontSize = 14.sp
                                         )
-                                        lesson.room?.let { Text(it, fontSize = 14.sp) }
+                                        lesson.room?.let { Text(it, fontSize = 12.sp) }
                                     }
                                 }
                             }
