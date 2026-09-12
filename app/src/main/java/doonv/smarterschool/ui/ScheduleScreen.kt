@@ -49,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import doonv.smarterschool.R
 import doonv.smarterschool.data.DaySchedule
 import doonv.smarterschool.data.HourData
+import doonv.smarterschool.data.Lesson
 import doonv.smarterschool.ui.theme.LessonColors
 import kotlinx.coroutines.launch
 
@@ -166,55 +167,63 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
                 }
             } else {
                 h.schedule.forEach { lesson ->
-                    val cancelled = lesson.changes.any { it.isClassCancel }
-                    val solid = colors[LessonColors.keyOf(lesson)] ?: Color.Red
-                    val bg = solid.copy(alpha = 0.2f)
                     Row(
                         Modifier.padding(vertical = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         HourText()
-                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                            Box(
-                                Modifier
-                                    .weight(2f)
-                                    .let { if (cancelled) it.alpha(0.3f) else it }
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(bg)
-                                    .rightBorder(3.dp, solid)
-                                    .padding(horizontal = 16.dp, vertical = 4.dp)) {
-                                Column {
-                                    Row(
-                                        Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            lesson.subject ?: "-",
-                                            fontWeight = FontWeight.Bold,
-                                            textDecoration = if (cancelled) TextDecoration.LineThrough else null
-                                        )
-
-                                        lesson.subjectLevel?.let { Text(it, fontSize = 12.sp) }
-                                    }
-                                    Row(
-                                        Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            listOfNotNull(
-                                                lesson.teacherPrivateName, lesson.teacherLastName
-                                            ).joinToString(" ").ifBlank { "-" }, fontSize = 14.sp
-                                        )
-                                        lesson.room?.let { Text(it, fontSize = 12.sp) }
-                                    }
-                                }
-                            }
-                        }
+                        LessonCard(lesson, colors)
                     }
                 }
             }
             HorizontalDivider()
+        }
+    }
+}
+
+@Composable
+private fun RowScope.LessonCard(
+    lesson: Lesson,
+    colors: Map<String, Color>
+) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        val cancelled = lesson.changes.any { it.isClassCancel }
+        val solid = colors[LessonColors.keyOf(lesson)] ?: Color.Red
+        val bg = solid.copy(alpha = 0.2f)
+        Box(
+            Modifier
+                .weight(2f)
+                .let { if (cancelled) it.alpha(0.3f) else it }
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(6.dp))
+                .background(bg)
+                .rightBorder(3.dp, solid)
+                .padding(horizontal = 16.dp, vertical = 4.dp)) {
+            Column {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        lesson.subject ?: "-",
+                        fontWeight = FontWeight.Bold,
+                        textDecoration = if (cancelled) TextDecoration.LineThrough else null
+                    )
+
+                    lesson.subjectLevel?.let { Text(it, fontSize = 12.sp) }
+                }
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        listOfNotNull(
+                            lesson.teacherPrivateName, lesson.teacherLastName
+                        ).joinToString(" ").ifBlank { "-" }, fontSize = 14.sp
+                    )
+                    lesson.room?.let { Text(it, fontSize = 12.sp) }
+                }
+            }
         }
     }
 }
