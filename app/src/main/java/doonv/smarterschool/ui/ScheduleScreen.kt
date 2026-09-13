@@ -148,31 +148,32 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
                     .weight(1f)
                     .align(Alignment.CenterVertically)
             )
-
-            if (h.schedule.isEmpty()) {
-                Row(
-                    Modifier.padding(vertical = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    HourText()
-                    Text(
-                        text = stringResource(R.string.window),
-                        textAlign = TextAlign.Center,
-                        fontStyle = FontStyle.Italic,
-                        modifier = Modifier
-                            .weight(2f)
-                            .padding(6.dp)
-                            .alpha(0.2f)
-                    )
-                }
-            } else {
-                h.schedule.forEach { lesson ->
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                if (h.schedule.isEmpty()) {
                     Row(
                         Modifier.padding(vertical = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        Text(
+                            text = stringResource(R.string.window),
+                            textAlign = TextAlign.Center,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier
+                                .weight(2f)
+                                .padding(6.dp)
+                                .alpha(0.2f)
+                        )
                         HourText()
-                        LessonCard(lesson, colors)
+                    }
+                } else {
+                    h.schedule.forEach { lesson ->
+                        Row(
+                            Modifier.padding(vertical = 6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            LessonCard(lesson, colors)
+                            HourText()
+                        }
                     }
                 }
             }
@@ -186,43 +187,41 @@ private fun RowScope.LessonCard(
     lesson: Lesson,
     colors: Map<String, Color>
 ) {
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        val cancelled = lesson.changes.any { it.isClassCancel }
-        val solid = colors[LessonColors.keyOf(lesson)] ?: Color.Red
-        val bg = solid.copy(alpha = 0.2f)
-        Box(
-            Modifier
-                .weight(2f)
-                .let { if (cancelled) it.alpha(0.3f) else it }
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(6.dp))
-                .background(bg)
-                .rightBorder(3.dp, solid)
-                .padding(horizontal = 16.dp, vertical = 4.dp)) {
-            Column {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        lesson.subject ?: "-",
-                        fontWeight = FontWeight.Bold,
-                        textDecoration = if (cancelled) TextDecoration.LineThrough else null
-                    )
+    val cancelled = lesson.changes.any { it.isClassCancel }
+    val solid = colors[LessonColors.keyOf(lesson)] ?: Color.Red
+    val bg = solid.copy(alpha = 0.2f)
+    Box(
+        Modifier
+            .weight(2f)
+            .let { if (cancelled) it.alpha(0.3f) else it }
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.dp))
+            .background(bg)
+            .rightBorder(3.dp, solid)
+            .padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Column {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    lesson.subject ?: "-",
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = if (cancelled) TextDecoration.LineThrough else null
+                )
 
-                    lesson.subjectLevel?.let { Text(it, fontSize = 12.sp) }
-                }
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        listOfNotNull(
-                            lesson.teacherPrivateName, lesson.teacherLastName
-                        ).joinToString(" ").ifBlank { "-" }, fontSize = 14.sp
-                    )
-                    lesson.room?.let { Text(it, fontSize = 12.sp) }
-                }
+                lesson.subjectLevel?.let { Text(it, fontSize = 12.sp) }
+            }
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    listOfNotNull(
+                        lesson.teacherPrivateName, lesson.teacherLastName
+                    ).joinToString(" ").ifBlank { "-" }, fontSize = 14.sp
+                )
+                lesson.room?.let { Text(it, fontSize = 12.sp) }
             }
         }
     }
