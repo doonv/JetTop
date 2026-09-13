@@ -4,20 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import doonv.smarterschool.R
 import doonv.smarterschool.data.DaySchedule
@@ -92,27 +94,49 @@ private fun DayTabs(days: List<DaySchedule>) {
     val pagerState = rememberPagerState(pageCount = { days.size })
     val scope = rememberCoroutineScope()
     val colors = remember(days) { LessonColors.build(days) }
-    Column(Modifier.fillMaxSize()) {
-        PrimaryTabRow(
-            selectedTabIndex = pagerState.currentPage
-        ) {
-            val dayNames = stringArrayResource(R.array.days)
-            days.forEachIndexed { i, d ->
-                Tab(
-                    selected = i == pagerState.currentPage,
-                    onClick = { scope.launch { pagerState.animateScrollToPage(i) } },
-                    text = { Text(dayNames[d.dayIndex - 1]) })
+    val maxHeight = remember(days) {
+        days.maxOf {
+            val hours = it.hoursData.dropLastWhile { h -> h.schedule.isEmpty() }
+            hours
+                .sumOf { h -> (if (h.schedule.isEmpty()) 36 else h.schedule.size * 56) + 13 }.dp + hours.size * 2.dp
+        } + 2.dp
+    }
+    LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            Column(Modifier.padding(8.dp)) {
+                Text(
+                    "לילה טוב, {שם}",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp)
+                )
+                EventsSummaryCard()
             }
         }
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.Top
-        ) { page ->
-            val day = days.getOrNull(page) ?: return@HorizontalPager
-            DayPage(day, colors)
+        stickyHeader {
+            PrimaryTabRow(
+                selectedTabIndex = pagerState.currentPage
+            ) {
+                val dayNames = stringArrayResource(R.array.days)
+                days.forEachIndexed { i, d ->
+                    Tab(
+                        selected = i == pagerState.currentPage,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(i) } },
+                        text = { Text(dayNames[d.dayIndex - 1]) })
+                }
+            }
+        }
+        item {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = maxHeight),
+                verticalAlignment = Alignment.Top
+            ) { page ->
+                val day = days.getOrNull(page) ?: return@HorizontalPager
+                DayPage(day, colors)
+            }
         }
     }
 }
@@ -121,13 +145,15 @@ private fun DayTabs(days: List<DaySchedule>) {
 private fun DayPage(day: DaySchedule, colors: Map<String, Color>) {
     val hours = day.hoursData.dropLastWhile { it.schedule.isEmpty() }
     if (hours.isEmpty()) {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(stringResource(R.string.no_lessons))
+        Column(Modifier.fillMaxWidth()) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(stringResource(R.string.no_lessons))
+            }
         }
         return
     }
@@ -136,13 +162,14 @@ private fun DayPage(day: DaySchedule, colors: Map<String, Color>) {
 
 @Composable
 private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
-    LazyColumn(
-        Modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+    Column(
+        Modifier.fillMaxWidth()
     ) {
-        items(hours, key = { it.hour }) { h ->
+        hours.forEachIndexed { index, h ->
             @Composable
             fun RowScope.HourText() = Text(
-                text = h.hourName?.substringAfter("       ") ?: "${h.hour}",
+                // TODO: figure out a flexible way to do this
+                text = h.hourName?.dropWhile { it.isDigit() }?.trim() ?: "${h.hour}",
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)
@@ -177,7 +204,56 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
                     }
                 }
             }
-            HorizontalDivider()
+            if (index != hours.lastIndex) HorizontalDivider()
+        }
+    }
+}
+
+@Composable
+private fun EventsSummaryCard() {
+    Card(Modifier.fillMaxWidth()) {
+        Text(
+            "אירועים בשיעור",
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(8.dp)
+        )
+        HorizontalDivider()
+        Column(verticalArrangement = Arrangement.spacedBy(-20.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    "איחור",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    "123",
+                    color = MaterialTheme.colorScheme.onSurface,
+
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    "אנגלית",
+                    fontSize = 12.sp
+                )
+                Text(
+                    "8:45 - 8:00",
+                    fontSize = 12.sp
+                )
+            }
         }
     }
 }
@@ -210,7 +286,13 @@ private fun RowScope.LessonCard(
                     textDecoration = if (cancelled) TextDecoration.LineThrough else null
                 )
 
-                lesson.subjectLevel?.let { Text(it, fontSize = 12.sp, modifier = Modifier.alpha(0.7f)) }
+                lesson.subjectLevel?.let {
+                    Text(
+                        it,
+                        fontSize = 12.sp,
+                        modifier = Modifier.alpha(0.7f)
+                    )
+                }
             }
             Row(
                 Modifier.fillMaxWidth(),
