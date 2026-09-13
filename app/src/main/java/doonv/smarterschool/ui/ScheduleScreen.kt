@@ -210,7 +210,7 @@ private fun RowScope.LessonCard(
                     textDecoration = if (cancelled) TextDecoration.LineThrough else null
                 )
 
-                lesson.subjectLevel?.let { Text(it, fontSize = 12.sp) }
+                lesson.subjectLevel?.let { Text(it, fontSize = 12.sp, modifier = Modifier.alpha(0.7f)) }
             }
             Row(
                 Modifier.fillMaxWidth(),
