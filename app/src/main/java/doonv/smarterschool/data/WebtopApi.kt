@@ -18,6 +18,19 @@ object ApiConfig {
 }
 
 interface WebtopApi {
+    @POST("server/api/user/LoginByUserNameAndPassword")
+    suspend fun login(
+        @Body body: LoginRequest,
+        @Header("language") language: String = "he",
+        @Header("Origin") origin: String = "https://webtop.smartschool.co.il",
+        @Header("Referer") referer: String = "https://webtop.smartschool.co.il/",
+        @Header("X-XSRF-TOKEN") xsrf: String = "",
+        @Header("Content-Type") contentType: String = "application/json",
+        @Header("Sec-Fetch-Dest") fetchDest: String = "empty",
+        @Header("Sec-Fetch-Mode") fetchMode: String = "cors",
+        @Header("Sec-Fetch-Site") fetchSite: String = "same-site"
+    ): LoginResponse
+
     @POST("server/api/shotef/ShotefSchedualeData")
     suspend fun getSchedule(
         @Body body: ScheduleRequest,
