@@ -1,4 +1,4 @@
-package doonv.smarterschool
+package doonv.jettop
 
 import org.junit.Test
 

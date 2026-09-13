@@ -1,8 +1,8 @@
-package doonv.smarterschool.ui.theme
+package doonv.jettop.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import doonv.smarterschool.data.DaySchedule
-import doonv.smarterschool.data.Lesson
+import doonv.jettop.data.DaySchedule
+import doonv.jettop.data.Lesson
 
 /**
  * Port of Webtop's `SchedualeViewComponent` coloring

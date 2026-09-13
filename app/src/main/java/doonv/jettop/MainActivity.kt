@@ -1,4 +1,4 @@
-package doonv.smarterschool
+package doonv.jettop
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -32,9 +32,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import doonv.smarterschool.ui.ScheduleScreen
-import doonv.smarterschool.ui.ScheduleViewModel
-import doonv.smarterschool.ui.theme.SmarterSchoolTheme
+import doonv.jettop.ui.ScheduleScreen
+import doonv.jettop.ui.ScheduleViewModel
+import doonv.jettop.ui.theme.JetTopTheme
 
 enum class Destination(
     val route: String,
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SmarterSchoolTheme {
+            JetTopTheme {
                 val navController = rememberNavController()
                 val startDestination = Destination.MAIN
                 var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }

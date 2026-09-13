@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SmarterSchool</string>
+    <string name="app_name" translatable="false">JetTop</string>
     <string name="error_message">Error: %1$s</string>
     <string name="retry">Retry</string>
     <string name="no_data">No data</string>

@@ -1,4 +1,4 @@
-package doonv.smarterschool.ui
+package doonv.jettop.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,11 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
-import doonv.smarterschool.R
-import doonv.smarterschool.data.DaySchedule
-import doonv.smarterschool.data.HourData
-import doonv.smarterschool.data.Lesson
-import doonv.smarterschool.ui.theme.LessonColors
+import doonv.jettop.R
+import doonv.jettop.data.DaySchedule
+import doonv.jettop.data.HourData
+import doonv.jettop.data.Lesson
+import doonv.jettop.ui.theme.LessonColors
 import kotlinx.coroutines.launch
 
 @Composable

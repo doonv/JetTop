@@ -18,13 +18,13 @@ fun secretLiteral(value: String): String =
     "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
-    namespace = "doonv.smarterschool"
+    namespace = "doonv.jettop"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "doonv.smarterschool"
+        applicationId = "doonv.jettop"
         minSdk = 26
         targetSdk = 37
         versionCode = 1

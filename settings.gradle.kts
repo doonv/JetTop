@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SmarterSchool"
+rootProject.name = "JetTop"
 include(":app")

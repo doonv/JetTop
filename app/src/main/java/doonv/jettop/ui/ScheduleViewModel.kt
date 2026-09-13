@@ -1,11 +1,11 @@
-package doonv.smarterschool.ui
+package doonv.jettop.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import doonv.smarterschool.data.ApiClient
-import doonv.smarterschool.data.ApiConfig
-import doonv.smarterschool.data.DaySchedule
-import doonv.smarterschool.data.ScheduleRequest
+import doonv.jettop.data.ApiClient
+import doonv.jettop.data.ApiConfig
+import doonv.jettop.data.DaySchedule
+import doonv.jettop.data.ScheduleRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

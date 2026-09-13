@@ -1,4 +1,4 @@
-package doonv.smarterschool.data
+package doonv.jettop.data
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable

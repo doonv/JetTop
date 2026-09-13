@@ -1,4 +1,4 @@
-package doonv.smarterschool.data
+package doonv.jettop.data
 
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -14,7 +14,7 @@ object ApiConfig {
     const val INSTITUTION_CODE = -123456
     const val SELECTED_VALUE = "GRADE|CLASS"
     const val TYPE_VIEW = 1
-    const val COOKIE: String = doonv.smarterschool.BuildConfig.WEB_COOKIE
+    const val COOKIE: String = doonv.jettop.BuildConfig.WEB_COOKIE
 }
 
 interface WebtopApi {
