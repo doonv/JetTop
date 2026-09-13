@@ -163,7 +163,7 @@ private fun DayPage(day: DaySchedule, colors: Map<String, Color>) {
 @Composable
 private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
     Column(
-        Modifier.fillMaxWidth()
+        Modifier.fillMaxWidth().padding(16.dp, 0.dp),
     ) {
         hours.forEachIndexed { index, h ->
             @Composable
