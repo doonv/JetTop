@@ -195,9 +195,9 @@ private fun RowScope.LessonCard(
             .weight(2f)
             .let { if (cancelled) it.alpha(0.3f) else it }
             .fillMaxWidth()
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(4.dp))
             .background(bg)
-            .rightBorder(3.dp, solid)
+            .rightBorder(4.dp, solid)
             .padding(horizontal = 16.dp, vertical = 4.dp)) {
         Column {
             Row(
