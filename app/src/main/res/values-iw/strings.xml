@@ -11,4 +11,7 @@
         <item>ה</item>
         <item>ו</item>
     </string-array>
+    <string name="main">ריכוז מידע</string>
+    <string name="messages">הודעות</string>
+    <string name="student_card">כרטיס תלמיד</string>
 </resources>

@@ -15,4 +15,7 @@
         <item>Thu</item>
         <item>Fri</item>
     </string-array>
+    <string name="main">Dashboard</string>
+    <string name="messages">Messages</string>
+    <string name="student_card">Student Card</string>
 </resources>
