@@ -1,20 +1,17 @@
 package doonv.jettop.data
 
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
 
 object ApiConfig {
     const val BASE_URL = "https://webtopserver.smartschool.co.il/"
-    const val INSTITUTION_CODE = -123456
-    const val SELECTED_VALUE = "GRADE|CLASS"
     const val TYPE_VIEW = 1
-    const val COOKIE: String = doonv.jettop.BuildConfig.WEB_COOKIE
 }
 
 interface WebtopApi {
@@ -34,7 +31,7 @@ interface WebtopApi {
     @POST("server/api/shotef/ShotefSchedualeData")
     suspend fun getSchedule(
         @Body body: ScheduleRequest,
-        @Header("Cookie") cookie: String = ApiConfig.COOKIE,
+        @Header("Cookie") cookie: String,
         @Header("language") language: String = "he",
         @Header("rememberMe") rememberMe: String = "0",
         @Header("X-XSRF-TOKEN") xsrf: String = "",
@@ -60,7 +57,10 @@ object ApiClient {
         .addInterceptor { chain ->
             chain.proceed(
                 chain.request().newBuilder()
-                    .header("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0")
+                    .header(
+                        "User-Agent",
+                        "Mozilla/5.0 (X11; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0"
+                    )
                     .header("Accept", "application/json, text/plain, */*")
                     .header("Accept-Language", "en-US,en;q=0.9")
                     .build()

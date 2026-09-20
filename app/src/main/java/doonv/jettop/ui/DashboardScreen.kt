@@ -16,8 +16,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -55,6 +56,7 @@ import doonv.jettop.data.Lesson
 import doonv.jettop.ui.theme.LessonColors
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ScheduleScreen(
     modifier: Modifier = Modifier, vm: ScheduleViewModel = viewModel()
@@ -64,7 +66,7 @@ fun ScheduleScreen(
         when (val s = state) {
             is ScheduleUiState.Loading -> Box(
                 Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) { CircularProgressIndicator() }
+            ) { LoadingIndicator() }
 
             is ScheduleUiState.Error -> Column(
                 Modifier
@@ -163,7 +165,9 @@ private fun DayPage(day: DaySchedule, colors: Map<String, Color>) {
 @Composable
 private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
     Column(
-        Modifier.fillMaxWidth().padding(16.dp, 0.dp),
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp, 0.dp),
     ) {
         hours.forEachIndexed { index, h ->
             @Composable

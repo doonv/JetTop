@@ -4,19 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-val webCookieValue = providers.fileContents(
-    rootProject.layout.projectDirectory.file(".env")
-).asText.map { text ->
-    text.lineSequence()
-        .first { it.startsWith("WEB_COOKIE=") }
-        .substringAfter("=")
-        .removeSurrounding("\"")
-        .trim()
-}.get()
-
-fun secretLiteral(value: String): String =
-    "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
-
 android {
     namespace = "doonv.jettop"
     compileSdk {
@@ -31,7 +18,6 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "WEB_COOKIE", secretLiteral(webCookieValue))
     }
 
     buildTypes {
@@ -54,7 +40,6 @@ android {
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -62,7 +47,10 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.kotlinx.serialization.json)

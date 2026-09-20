@@ -13,4 +13,13 @@
     <string name="main">ריכוז מידע</string>
     <string name="messages">הודעות</string>
     <string name="student_card">כרטיס תלמיד</string>
+    <string name="login_title">טוב לראות אותך.</string>
+    <string name="login_username">שם משתמש</string>
+    <string name="login_password">סיסמה</string>
+    <string name="login_forgot_password">שכחת שם משתמש/סיסמה?</string>
+    <string name="login_button">כניסה</string>
+    <string name="login_reset_unimplemented">איפוס סיסמה אינו נתמך עדיין. השתמשו באפליקציה הרשמית או באתר.</string>
+    <string name="login_error_invalid">שם המשתמש או הסיסמה שגויים.</string>
+    <string name="login_error_network">שגיאת רשת, נסו שוב.</string>
+    <string name="schedule_error_missing_details">פרטי החשבון חסרים, אנא התחברו שוב.</string>
 </resources>

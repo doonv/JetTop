@@ -1,23 +1,71 @@
 package doonv.jettop.data
 
+import android.util.Base64
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
+
+/**
+ * Reverse engineered from WebTop's `RsaService` class in `main.7294e58efaf6cff7.js`
+ */
+fun encryptDataField(username: String, counter: Int): String {
+    val key = SecretKeySpec(
+        "01234567890000000150778345678901".toByteArray(Charsets.UTF_8),
+        "AES"
+    )
+    val iv = IvParameterSpec(
+        "6543210987654321".toByteArray(Charsets.UTF_8)
+    )
+    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+    cipher.init(Cipher.ENCRYPT_MODE, key, iv)
+    val json = Json.encodeToString("$username$counter")
+    return Base64.encodeToString(
+        cipher.doFinal(json.toByteArray(Charsets.UTF_8)), Base64.NO_WRAP
+    )
+}
 
 @Serializable
 data class LoginRequest(
-    val userName: String,
+    @SerialName("userName")
+    val username: String,
     val password: String,
-    val data: String = "",
+    val data: String,
     val captcha: String = "", // seems like it can just be "" and still give you a token
     val rememberMe: Boolean = false,
     val biometricLogin: String = "",
     val uniqueId: String = "",
     val deviceDataJson: String = ""
-)
+) {
+    companion object {
+        fun forLogin(
+            username: String,
+            password: String,
+            counter: Int = 0,
+            captcha: String = "",
+            rememberMe: Boolean = false,
+            biometricLogin: String = "",
+            uniqueId: String = "",
+            deviceDataJson: String = ""
+        ) = LoginRequest(
+            username = username,
+            password = password,
+            data = encryptDataField(username, counter),
+            captcha = captcha,
+            rememberMe = rememberMe,
+            biometricLogin = biometricLogin,
+            uniqueId = uniqueId,
+            deviceDataJson = deviceDataJson
+        )
+    }
+}
 
 @Serializable
 data class LoginResponse(
@@ -49,15 +97,15 @@ data class LoginData(
     val studentEmail: String? = null,
     val studentGender: Gender = Gender.MALE,
     val firstInstitutionCode: Int? = null,
-    val institutionCode: Int? = null,
+    val institutionCode: Int,
     val isReseted: Boolean = false,
     val lastResetDate: String? = null,
     val lastPasswordChangeDate: String? = null,
     val lastLoginDate: String? = null,
-    val classCode: String? = null, // grade number?
+    val classCode: String, // grade number?
     val classNumber: Int? = null,
     val isSchoolyAdministrator: Boolean = false,
-    val token: String? = null,
+    val token: String,
     val cellphone: String? = null,
     val browserLanguage: String? = null,
     val initialUserType: Int = 0,
@@ -96,8 +144,10 @@ object GenderSerializer : KSerializer<Gender> {
         }
 
     override fun serialize(encoder: Encoder, value: Gender) =
-        encoder.encodeBoolean(when (value) {
-            Gender.MALE -> false
-            Gender.FEMALE -> true
-        })
+        encoder.encodeBoolean(
+            when (value) {
+                Gender.MALE -> false
+                Gender.FEMALE -> true
+            }
+        )
 }
