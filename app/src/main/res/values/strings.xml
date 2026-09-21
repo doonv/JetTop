@@ -4,8 +4,6 @@
     <string name="retry">Retry</string>
     <string name="no_data">No data</string>
     <string name="no_lessons">No lessons this day. webToken expired?</string>
-    <string name="hour">Hour</string>
-    <string name="subject">Subject</string>
     <string name="window">Window</string>
     <string-array name="days">
         <item>Sun</item>
