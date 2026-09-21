@@ -72,11 +72,20 @@ fun ScheduleScreen(
                 Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(stringResource(R.string.error_message, s.message))
-                Button(onClick = { vm.refresh() }, modifier = Modifier.padding(top = 8.dp)) {
-                    Text(stringResource(R.string.retry))
+                Column(Modifier.fillMaxWidth(0.5f)) {
+                    Text(
+                        stringResource(R.string.error_message),
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Text(s.message, color = MaterialTheme.colorScheme.error)
+                    Button(onClick = { vm.refresh() }, modifier = Modifier.padding(top = 8.dp)) {
+                        Text(stringResource(R.string.retry))
+                    }
                 }
             }
 
