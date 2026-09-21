@@ -26,6 +26,7 @@ sealed interface ScheduleUiState {
 
 class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
     private val store = app.applicationContext.dataStore
+
     private val _state = MutableStateFlow<ScheduleUiState>(ScheduleUiState.Loading)
     val state: StateFlow<ScheduleUiState> = _state
 
@@ -43,7 +44,7 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
         val cookie = loginData.cookie()
         val institutionCode = loginData.institutionCode
         val classCode = loginData.classCode
-        if (loginData.token.isBlank() || institutionCode == 0 || classCode.isBlank()) {
+        if (institutionCode == 0 || classCode.isBlank()) {
             _state.value = ScheduleUiState.Error(
                 getApplication<Application>().getString(R.string.schedule_error_missing_details)
             )

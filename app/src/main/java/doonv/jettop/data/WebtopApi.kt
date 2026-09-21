@@ -31,6 +31,11 @@ interface WebtopApi {
     suspend fun checkToken(
         @Header("Cookie") cookie: String
     ): ApiResponse<Boolean>
+
+    @POST("server/api/Menu/GetMenuCounters")
+    suspend fun getMenuCounters(
+        @Header("Cookie") cookie: String
+    ): ApiResponse<MenuCounters>
 }
 
 object ApiClient {

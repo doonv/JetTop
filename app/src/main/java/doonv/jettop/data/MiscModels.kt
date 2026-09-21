@@ -12,3 +12,13 @@ data class ApiResponse<T>(
     val errorDescription: String? = null,
     val errorHTML: String? = null
 )
+
+@Serializable
+data class MenuCounters(
+    val unreadMessages: Int = 0,
+    val unreadNotifications: Int = 0,
+    @SerialName("unreadPedegogicalNotifications")
+    val unreadPedagogicalNotifications: Int = 0,
+    val unreadSystemNotifications: Int = 0,
+    val unreadPersonalNotifications: Int = 0,
+)
