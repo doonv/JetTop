@@ -1,6 +1,5 @@
 package doonv.jettop.data
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -17,32 +16,12 @@ object ApiConfig {
 
 interface WebtopApi {
     @POST("server/api/user/LoginByUserNameAndPassword")
-    suspend fun login(
-        @Body body: LoginRequest,
-        @Header("language") language: String = "he",
-        @Header("Origin") origin: String = "https://webtop.smartschool.co.il",
-        @Header("Referer") referer: String = "https://webtop.smartschool.co.il/",
-        @Header("X-XSRF-TOKEN") xsrf: String = "",
-        @Header("Content-Type") contentType: String = "application/json",
-        @Header("Sec-Fetch-Dest") fetchDest: String = "empty",
-        @Header("Sec-Fetch-Mode") fetchMode: String = "cors",
-        @Header("Sec-Fetch-Site") fetchSite: String = "same-site"
-    ): ApiResponse<LoginData>
+    suspend fun login(@Body body: LoginRequest): ApiResponse<LoginData>
 
     @POST("server/api/shotef/ShotefSchedualeData")
     suspend fun getSchedule(
         @Body body: ScheduleRequest,
-        @Header("Cookie") cookie: String,
-        @Header("language") language: String = "he",
-        @Header("rememberMe") rememberMe: String = "0",
-        @Header("X-XSRF-TOKEN") xsrf: String = "",
-        @Header("Content-Type") contentType: String = "application/json",
-        @Header("Origin") origin: String = "https://webtop.smartschool.co.il",
-        @Header("Referer") referer: String = "https://webtop.smartschool.co.il/",
-        @Header("Sec-GPC") gpc: String = "1",
-        @Header("Sec-Fetch-Dest") fetchDest: String = "empty",
-        @Header("Sec-Fetch-Mode") fetchMode: String = "cors",
-        @Header("Sec-Fetch-Site") fetchSite: String = "same-site"
+        @Header("Cookie") cookie: String
     ): ApiResponse<List<DaySchedule>>
 
     /**
@@ -50,17 +29,7 @@ interface WebtopApi {
      */
     @POST("server/api/dashboard/CheckToken")
     suspend fun checkToken(
-        @Header("Cookie") cookie: String,
-        @Header("language") language: String = "he",
-        @Header("rememberMe") rememberMe: String = "0",
-        @Header("X-XSRF-TOKEN") xsrf: String = "",
-        @Header("Content-Type") contentType: String = "application/json",
-        @Header("Origin") origin: String = "https://webtop.smartschool.co.il",
-        @Header("Referer") referer: String = "https://webtop.smartschool.co.il/",
-        @Header("Sec-GPC") gpc: String = "1",
-        @Header("Sec-Fetch-Dest") fetchDest: String = "empty",
-        @Header("Sec-Fetch-Mode") fetchMode: String = "cors",
-        @Header("Sec-Fetch-Site") fetchSite: String = "same-site"
+        @Header("Cookie") cookie: String
     ): ApiResponse<Boolean>
 }
 
@@ -82,6 +51,7 @@ object ApiClient {
                     )
                     .header("Accept", "application/json, text/plain, */*")
                     .header("Accept-Language", "en-US,en;q=0.9")
+                    .header("language", "he")
                     .build()
             )
         }
@@ -94,14 +64,3 @@ object ApiClient {
         .build()
         .create(WebtopApi::class.java)
 }
-
-@Serializable
-data class ApiResponse<T>(
-    val status: Boolean = false,
-    val data: T,
-    val message: String? = null,
-    val errorId: String? = null,
-    val errorDescription: String? = null,
-    val errorHTML: String? = null
-)
-
