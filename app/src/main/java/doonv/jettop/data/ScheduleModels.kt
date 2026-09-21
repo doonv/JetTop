@@ -11,12 +11,6 @@ data class ScheduleRequest(
 )
 
 @Serializable
-data class ScheduleResponse(
-    val status: Boolean = false,
-    val data: List<DaySchedule> = emptyList()
-)
-
-@Serializable
 data class DaySchedule(
     val dayIndex: Int,
     val hoursData: List<HourData> = emptyList()

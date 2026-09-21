@@ -68,16 +68,6 @@ data class LoginRequest(
 }
 
 @Serializable
-data class LoginResponse(
-    val status: Boolean = false,
-    val data: LoginData? = null,
-    val message: String? = null,
-    val errorId: String? = null,
-    val errorDescription: String? = null,
-    val errorHTML: String? = null
-)
-
-@Serializable
 data class LoginData(
     val studentId: Long? = null,
     val id: String? = null,
@@ -111,7 +101,9 @@ data class LoginData(
     val initialUserType: Int = 0,
     val fullName: String? = null,
     val isOrt: Boolean = false
-)
+) {
+    fun cookie() = "webToken=$token"
+}
 
 @Serializable
 data class DeviceData(

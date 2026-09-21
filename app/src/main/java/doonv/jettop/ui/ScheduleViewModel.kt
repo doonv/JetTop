@@ -40,10 +40,10 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
 
     private suspend fun fetch(loginData: LoginData) {
         _state.value = ScheduleUiState.Loading
-        val token = loginData.token
+        val cookie = loginData.cookie()
         val institutionCode = loginData.institutionCode
         val classCode = loginData.classCode
-        if (token.isBlank() || institutionCode == 0 || classCode.isBlank()) {
+        if (loginData.token.isBlank() || institutionCode == 0 || classCode.isBlank()) {
             _state.value = ScheduleUiState.Error(
                 getApplication<Application>().getString(R.string.schedule_error_missing_details)
             )
@@ -55,13 +55,23 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
                     institutionCode = institutionCode,
                     selectedValue = "$classCode|${loginData.classNumber ?: 100}",
                     typeView = ApiConfig.TYPE_VIEW
-                ), cookie = "webToken=$token"
+                ), cookie
             )
-            _state.value =
-                if (resp.status)
-                    ScheduleUiState.Success(resp.data, loginData.firstName)
-                else
-                    ScheduleUiState.Error("API returned status=false")
+            // When our token is expired, WebTop's backend returns an empty week with no lessons.
+            // I don't think this is distinguishable from an actual valid empty week,
+            // so we call the checkToken API to make sure.
+            val isEmpty = resp.data.all { day ->
+                day.hoursData.all {
+                    it.schedule.isEmpty() && it.events.isEmpty() && it.exams.isEmpty()
+                }
+            }
+            if (isEmpty) {
+                val isValid = ApiClient.api.checkToken(cookie).data
+                if (!isValid) logout()
+            }
+
+            _state.value = if (resp.status) ScheduleUiState.Success(resp.data, loginData.firstName)
+            else ScheduleUiState.Error("API returned status=false")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             _state.value = ScheduleUiState.Error(e.message ?: "Unknown error")
@@ -72,6 +82,12 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val login = store.data.map { it.login }.first() ?: return@launch
             fetch(login)
+        }
+    }
+
+    private fun logout() {
+        viewModelScope.launch {
+            store.updateData { it.copy(login = null) }
         }
     }
 }

@@ -1,5 +1,6 @@
 package doonv.jettop.data
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -26,7 +27,7 @@ interface WebtopApi {
         @Header("Sec-Fetch-Dest") fetchDest: String = "empty",
         @Header("Sec-Fetch-Mode") fetchMode: String = "cors",
         @Header("Sec-Fetch-Site") fetchSite: String = "same-site"
-    ): LoginResponse
+    ): ApiResponse<LoginData>
 
     @POST("server/api/shotef/ShotefSchedualeData")
     suspend fun getSchedule(
@@ -42,7 +43,25 @@ interface WebtopApi {
         @Header("Sec-Fetch-Dest") fetchDest: String = "empty",
         @Header("Sec-Fetch-Mode") fetchMode: String = "cors",
         @Header("Sec-Fetch-Site") fetchSite: String = "same-site"
-    ): ScheduleResponse
+    ): ApiResponse<List<DaySchedule>>
+
+    /**
+     * @return if the current `webToken` in `cookie` is valid.
+     */
+    @POST("server/api/dashboard/CheckToken")
+    suspend fun checkToken(
+        @Header("Cookie") cookie: String,
+        @Header("language") language: String = "he",
+        @Header("rememberMe") rememberMe: String = "0",
+        @Header("X-XSRF-TOKEN") xsrf: String = "",
+        @Header("Content-Type") contentType: String = "application/json",
+        @Header("Origin") origin: String = "https://webtop.smartschool.co.il",
+        @Header("Referer") referer: String = "https://webtop.smartschool.co.il/",
+        @Header("Sec-GPC") gpc: String = "1",
+        @Header("Sec-Fetch-Dest") fetchDest: String = "empty",
+        @Header("Sec-Fetch-Mode") fetchMode: String = "cors",
+        @Header("Sec-Fetch-Site") fetchSite: String = "same-site"
+    ): ApiResponse<Boolean>
 }
 
 object ApiClient {
@@ -75,3 +94,14 @@ object ApiClient {
         .build()
         .create(WebtopApi::class.java)
 }
+
+@Serializable
+data class ApiResponse<T>(
+    val status: Boolean = false,
+    val data: T,
+    val message: String? = null,
+    val errorId: String? = null,
+    val errorDescription: String? = null,
+    val errorHTML: String? = null
+)
+
