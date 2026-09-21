@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 sealed interface ScheduleUiState {
     data object Loading : ScheduleUiState
-    data class Success(val days: List<DaySchedule>) : ScheduleUiState
+    data class Success(val days: List<DaySchedule>, val firstName: String) : ScheduleUiState
     data class Error(val message: String) : ScheduleUiState
 }
 
@@ -59,7 +59,7 @@ class ScheduleViewModel(app: Application) : AndroidViewModel(app) {
             )
             _state.value =
                 if (resp.status)
-                    ScheduleUiState.Success(resp.data)
+                    ScheduleUiState.Success(resp.data, loginData.firstName)
                 else
                     ScheduleUiState.Error("API returned status=false")
         } catch (e: Exception) {

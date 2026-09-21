@@ -89,13 +89,13 @@ fun ScheduleScreen(
                 }
             }
 
-            is ScheduleUiState.Success -> DayTabs(s.days)
+            is ScheduleUiState.Success -> DayTabs(s.days, s.firstName)
         }
     }
 }
 
 @Composable
-private fun DayTabs(days: List<DaySchedule>) {
+private fun DayTabs(days: List<DaySchedule>, firstName: String) {
     if (days.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(stringResource(R.string.no_data))
@@ -116,7 +116,7 @@ private fun DayTabs(days: List<DaySchedule>) {
         item {
             Column(Modifier.padding(8.dp)) {
                 Text(
-                    "לילה טוב, {שם}",
+                    stringResource(R.string.greeting_morning, firstName),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(16.dp)
