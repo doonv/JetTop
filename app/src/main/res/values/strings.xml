@@ -20,7 +20,7 @@
     <string name="login_username">Username</string>
     <string name="login_password">Password</string>
     <string name="login_forgot_password">Forgot username/password?</string>
-    <string name="login_button">Good to see you</string>
+    <string name="login_button">Log In</string>
     <string name="login_reset_unimplemented">Password reset is not implemented yet. Use the official app or website instead.</string>
     <string name="login_error_invalid">Incorrect username or password.</string>
     <string name="login_error_network">Network error, try again.</string>
