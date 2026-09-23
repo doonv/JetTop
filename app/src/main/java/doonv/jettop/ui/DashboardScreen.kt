@@ -55,6 +55,8 @@ import doonv.jettop.data.HourData
 import doonv.jettop.data.Lesson
 import doonv.jettop.ui.theme.LessonColors
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -102,7 +104,17 @@ private fun DayTabs(days: List<DaySchedule>, firstName: String) {
         }
         return
     }
-    val pagerState = rememberPagerState(pageCount = { days.size })
+    val pagerState = rememberPagerState(
+        pageCount = { days.size }, initialPage = when (LocalDate.now().dayOfWeek) {
+            DayOfWeek.SUNDAY -> 0
+            DayOfWeek.MONDAY -> 1
+            DayOfWeek.TUESDAY -> 2
+            DayOfWeek.WEDNESDAY -> 3
+            DayOfWeek.THURSDAY -> 4
+            DayOfWeek.FRIDAY -> 5
+            DayOfWeek.SATURDAY -> 0
+        }
+    )
     val scope = rememberCoroutineScope()
     val colors = remember(days) { LessonColors.build(days) }
     val maxHeight = remember(days) {
