@@ -6,8 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -21,7 +19,6 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
@@ -33,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -49,7 +45,7 @@ import doonv.jettop.ui.AuthState
 import doonv.jettop.ui.AuthViewModel
 import doonv.jettop.ui.LoginScreen
 import doonv.jettop.ui.MenuCountersViewModel
-import doonv.jettop.ui.ScheduleScreen
+import doonv.jettop.ui.DashboardScreen
 import doonv.jettop.ui.ScheduleViewModel
 import doonv.jettop.ui.theme.JetTopTheme
 
@@ -79,18 +75,6 @@ class MainActivity : ComponentActivity() {
                 val auth: AuthViewModel = viewModel()
                 val authState by auth.state.collectAsStateWithLifecycle()
                 when (val s = authState) {
-                    AuthState.Checking -> Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        Column(
-                            Modifier
-                                .padding(innerPadding)
-                                .fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            LoadingIndicator()
-                        }
-                    }
-
                     is AuthState.LoggedOut -> {
                         LoginScreen(
                             onLogin = { username, password -> auth.login(username, password) },
@@ -123,7 +107,7 @@ fun HomeScaffold() {
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }) {
             composable(Destination.MAIN.route) {
-                ScheduleScreen(
+                DashboardScreen(
                     modifier = Modifier.padding(innerPadding),
                     vm = scheduleVm
                 )

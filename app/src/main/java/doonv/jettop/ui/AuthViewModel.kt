@@ -12,19 +12,25 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 
 sealed interface AuthState {
-    data object Checking : AuthState
-    data class LoggedOut(val isLoading: Boolean = false, val error: String? = null)
+    data class LoggedOut(val isLoading: Boolean = false, val error: String? = null) : AuthState
     data class LoggedIn(val login: LoginData) : AuthState
 }
 
 class AuthViewModel(app: Application) : AndroidViewModel(app) {
     private val store = app.applicationContext.dataStore
     private val _login = MutableStateFlow(AuthState.LoggedOut(false))
+
+    // Blocking here because fetching from data stores is extremely fast
+    // but not blocking causes a flicker. And it requires more state
+    private val storedLogin = runBlocking { store.data.first().login }
+
     val state = combine(store.data, _login) { stored,
                                               login ->
         if (!stored.login?.token.isNullOrBlank())
@@ -32,9 +38,10 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
         else login
     }
         .stateIn(
-            viewModelScope, SharingStarted.WhileSubscribed(
-                5000
-            ), AuthState.Checking
+            viewModelScope,
+            SharingStarted.Eagerly,
+            if (!storedLogin?.token.isNullOrBlank()) AuthState.LoggedIn(storedLogin)
+            else AuthState.LoggedOut()
         )
 
     fun login(username: String, password: String) {
@@ -46,7 +53,7 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
                     LoginRequest.forLogin(username, password, 0)
                 )
                 val data = resp.data
-                if (resp.status && data != null && data.token.isNotBlank()
+                if (resp.status && data.token.isNotBlank()
                     && data.institutionCode != 0 && data.classCode.isNotBlank()
                 ) {
                     store.updateData { it.copy(login = data) }

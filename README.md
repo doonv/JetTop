@@ -8,6 +8,7 @@ Built with Jetpack Compose and Material 3 Expressive.
 
 - Native Material 3 Expressive UI
 - Support for both English and Hebrew
+- Offline-first (info is cached when you're offline)
 - Better login
   - No Captcha required
   - No relogin required every single launch

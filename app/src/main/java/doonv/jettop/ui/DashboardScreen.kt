@@ -1,5 +1,6 @@
 package doonv.jettop.ui
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,12 +24,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -55,49 +60,60 @@ import doonv.jettop.data.HourData
 import doonv.jettop.data.Lesson
 import doonv.jettop.ui.theme.LessonColors
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import java.time.DayOfWeek
+import java.time.Duration
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ScheduleScreen(
+fun DashboardScreen(
     modifier: Modifier = Modifier, vm: ScheduleViewModel = viewModel()
 ) {
     val state by vm.state.collectAsState()
-    Column(modifier = modifier.fillMaxSize()) {
-        when (val s = state) {
-            is ScheduleUiState.Loading -> Box(
-                Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) { LoadingIndicator() }
+    PullToRefreshBox(isRefreshing = state.refreshing(), onRefresh = { vm.refresh() }) {
+        Column(modifier = modifier.fillMaxSize()) {
+            when (val s = state) {
+                is ScheduleUiState.Loading -> Box(
+                    Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                ) { LoadingIndicator() }
 
-            is ScheduleUiState.Error -> Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Column(Modifier.fillMaxWidth(0.5f)) {
-                    Text(
-                        stringResource(R.string.error_message),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Text(s.message, color = MaterialTheme.colorScheme.error)
-                    Button(onClick = { vm.refresh() }, modifier = Modifier.padding(top = 8.dp)) {
-                        Text(stringResource(R.string.retry))
+                is ScheduleUiState.Error -> Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Column(Modifier.fillMaxWidth(0.5f)) {
+                        Text(
+                            stringResource(R.string.error_message),
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(s.message, color = MaterialTheme.colorScheme.error)
+                        Button(
+                            onClick = { vm.refresh() },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text(stringResource(R.string.retry))
+                        }
                     }
                 }
-            }
 
-            is ScheduleUiState.Success -> DayTabs(s.days, s.firstName)
+                is ScheduleUiState.Success -> Dashboard(s.days, s.firstName, s.lastUpdated)
+            }
         }
     }
 }
 
 @Composable
-private fun DayTabs(days: List<DaySchedule>, firstName: String) {
+private fun Dashboard(
+    days: List<DaySchedule>,
+    firstName: String,
+    lastUpdated: Long
+) {
     if (days.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(stringResource(R.string.no_data))
@@ -124,16 +140,30 @@ private fun DayTabs(days: List<DaySchedule>, firstName: String) {
                 .sumOf { h -> (if (h.schedule.isEmpty()) 36 else h.schedule.size * 56) + 13 }.dp + hours.size * 2.dp
         } + 2.dp
     }
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(Duration.ofMinutes(1))
+            now = System.currentTimeMillis()
+        }
+    }
+    val justNow = stringResource(R.string.just_now)
+    val rel = remember(lastUpdated, now) {
+        if (now - lastUpdated < 60_000L) justNow
+        else DateUtils.getRelativeTimeSpanString(lastUpdated, now, DateUtils.MINUTE_IN_MILLIS)
+            .toString()
+    }
     LazyColumn(Modifier.fillMaxSize()) {
         item {
-            Column(Modifier.padding(8.dp)) {
+            Column(Modifier.padding(8.dp), Arrangement.spacedBy(4.dp)) {
                 Text(
                     stringResource(R.string.greeting_morning, firstName),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(0.dp, 16.dp)
                 )
                 EventsSummaryCard()
+                Text(stringResource(R.string.last_updated, rel), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         stickyHeader {

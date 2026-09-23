@@ -71,7 +71,7 @@ data class LoginRequest(
 data class LoginData(
     val studentId: Long? = null,
     val id: String? = null,
-    val userId: String? = null,
+    val userId: String,
     val schoolName: String? = null,
     val isSuperAdmin: Boolean = false,
     val isAllowDataImport: Boolean = false,
