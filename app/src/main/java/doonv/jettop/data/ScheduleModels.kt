@@ -25,7 +25,9 @@ data class HourData(
     val changes: List<LessonChange> = emptyList(),
     val events: List<EventItem> = emptyList(),
     val exams: List<ExamItem> = emptyList()
-)
+) {
+    val isEmpty: Boolean get() = schedule.isEmpty() && events.isEmpty() && exams.isEmpty()
+}
 
 @Serializable
 data class Lesson(

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -44,10 +45,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -133,12 +134,23 @@ private fun Dashboard(
     )
     val scope = rememberCoroutineScope()
     val colors = remember(days) { LessonColors.build(days) }
-    val maxHeight = remember(days) {
-        days.maxOf {
-            val hours = it.hoursData.dropLastWhile { h -> h.schedule.isEmpty() }
-            hours
-                .sumOf { h -> (if (h.schedule.isEmpty()) 36 else h.schedule.size * 56) + 13 }.dp + hours.size * 2.dp
-        } + 2.dp
+    val hideZeroHour = remember(days) {
+        days.all { day ->
+            day.hoursData.none {
+                it.hour == 0 && (!it.isEmpty || !it.hourName.isNullOrBlank())
+            }
+        }
+    }
+
+    val maxHeight = remember(days, hideZeroHour) {
+        days.maxOf { day ->
+            val hours = day.visibleHours(hideZeroHour)
+            val emptyRows = hours.count { it.isEmpty }
+            val lessonRows = hours.sumOf { if (it.isEmpty) 0 else it.schedule.size } + emptyRows
+            lessonRows * (46.dp + 12.dp) +
+                    emptyRows * (47.dp - 12.dp) +
+                    (hours.size - 1).coerceAtLeast(0) * 1.dp
+        }
     }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) {
@@ -163,7 +175,11 @@ private fun Dashboard(
                     modifier = Modifier.padding(0.dp, 16.dp)
                 )
                 EventsSummaryCard()
-                Text(stringResource(R.string.last_updated, rel), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    stringResource(R.string.last_updated, rel),
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
         stickyHeader {
@@ -175,7 +191,14 @@ private fun Dashboard(
                     Tab(
                         selected = i == pagerState.currentPage,
                         onClick = { scope.launch { pagerState.animateScrollToPage(i) } },
-                        text = { Text(dayNames[d.dayIndex - 1]) })
+                        text = {
+                            Text(
+                                text = dayNames[d.dayIndex - 1],
+                                maxLines = 1,
+                                softWrap = false
+                            )
+                        }
+                    )
                 }
             }
         }
@@ -188,15 +211,15 @@ private fun Dashboard(
                 verticalAlignment = Alignment.Top
             ) { page ->
                 val day = days.getOrNull(page) ?: return@HorizontalPager
-                DayPage(day, colors)
+                val hours = day.visibleHours(hideZeroHour)
+                DayPage(hours, colors)
             }
         }
     }
 }
 
 @Composable
-private fun DayPage(day: DaySchedule, colors: Map<String, Color>) {
-    val hours = day.hoursData.dropLastWhile { it.schedule.isEmpty() }
+private fun DayPage(hours: List<HourData>, colors: Map<String, Color>) {
     if (hours.isEmpty()) {
         Column(Modifier.fillMaxWidth()) {
             Box(
@@ -229,22 +252,15 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
                 modifier = Modifier
                     .weight(1f)
                     .align(Alignment.CenterVertically)
+                    .padding(vertical = 8.dp)
             )
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                if (h.schedule.isEmpty()) {
+                if (h.isEmpty) {
                     Row(
                         Modifier.padding(vertical = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = stringResource(R.string.window),
-                            textAlign = TextAlign.Center,
-                            fontStyle = FontStyle.Italic,
-                            modifier = Modifier
-                                .weight(2f)
-                                .padding(6.dp)
-                                .alpha(0.2f)
-                        )
+                        Spacer(Modifier.weight(2f))
                         HourText()
                     }
                 } else {
@@ -275,7 +291,7 @@ private fun EventsSummaryCard() {
             modifier = Modifier.padding(8.dp)
         )
         HorizontalDivider()
-        Column(verticalArrangement = Arrangement.spacedBy(-20.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy((-20).dp)) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
@@ -290,7 +306,6 @@ private fun EventsSummaryCard() {
                 Text(
                     "123",
                     color = MaterialTheme.colorScheme.onSurface,
-
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -329,36 +344,60 @@ private fun RowScope.LessonCard(
             .clip(RoundedCornerShape(4.dp))
             .background(bg)
             .rightBorder(4.dp, solid)
-            .padding(horizontal = 16.dp, vertical = 4.dp)) {
+            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp)
+    ) {
         Column {
             Row(
                 Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     lesson.subject ?: "-",
                     fontWeight = FontWeight.Bold,
+                    lineHeight = 22.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                    modifier = Modifier.weight(1f, fill = false),
                     textDecoration = if (cancelled) TextDecoration.LineThrough else null
                 )
 
-                lesson.subjectLevel?.let {
+                lesson.subjectLevel?.takeIf { it.isNotBlank() }?.let {
                     Text(
                         it,
-                        fontSize = 12.sp,
-                        modifier = Modifier.alpha(0.7f)
+                        fontSize = 11.sp,
+                        lineHeight = 17.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(solid.copy(alpha = 0.3f))
+                            .padding(horizontal = 6.dp),
                     )
                 }
             }
             Row(
                 Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     listOfNotNull(
                         lesson.teacherPrivateName, lesson.teacherLastName
-                    ).joinToString(" ").ifBlank { "-" }, fontSize = 14.sp
+                    ).joinToString(" ").ifBlank { "-" },
+                    fontSize = 14.sp,
+                    modifier = Modifier.alignByBaseline()
                 )
-                lesson.room?.let { Text(it, fontSize = 12.sp) }
+                lesson.room?.let {
+                    Text(
+                        it,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .alignByBaseline()
+                            .alpha(0.7f)
+                    )
+                }
             }
         }
     }
@@ -373,3 +412,8 @@ fun Modifier.rightBorder(width: Dp, color: Color) = drawBehind {
         ), stroke
     )
 }
+
+private fun DaySchedule.visibleHours(hideZeroHour: Boolean): List<HourData> =
+    hoursData
+        .filterNot { hideZeroHour && it.hour == 0 }
+        .dropLastWhile { it.isEmpty }
