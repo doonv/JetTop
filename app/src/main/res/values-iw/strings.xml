@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="window">חלון</string>
     <string name="no_lessons">אין שיעורים ביום זה.</string>
     <string-array name="days">
         <item>א</item>
