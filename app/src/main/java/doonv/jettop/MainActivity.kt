@@ -41,12 +41,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import doonv.jettop.data.LoginData
 import doonv.jettop.ui.AuthState
 import doonv.jettop.ui.AuthViewModel
+import doonv.jettop.ui.DashboardScreen
 import doonv.jettop.ui.LoginScreen
 import doonv.jettop.ui.MenuCountersViewModel
-import doonv.jettop.ui.DashboardScreen
 import doonv.jettop.ui.ScheduleViewModel
+import doonv.jettop.ui.StudentCardScreen
 import doonv.jettop.ui.theme.JetTopTheme
 
 enum class Destination(
@@ -83,7 +85,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    is AuthState.LoggedIn -> HomeScaffold()
+                    is AuthState.LoggedIn -> HomeScaffold(s.login)
                 }
             }
         }
@@ -91,7 +93,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HomeScaffold() {
+fun HomeScaffold(loginData: LoginData) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -112,8 +114,15 @@ fun HomeScaffold() {
                     vm = scheduleVm
                 )
             }
-            composable(Destination.MESSAGES.route) { }
-            composable(Destination.STUDENT_CARD.route) { }
+            composable(Destination.MESSAGES.route) {
+
+            }
+            composable(Destination.STUDENT_CARD.route) {
+                StudentCardScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    loginData
+                )
+            }
         }
 
     }

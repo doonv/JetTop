@@ -24,4 +24,11 @@
     <string name="greeting_morning">בוקר טוב, %1$s</string>
     <string name="just_now">רק עכשיו</string>
     <string name="last_updated">עודכן לאחרונה: %1$s.</string>
+    <string name="lesson_events">אירועי שיעור</string>
+    <string name="non_lesson_events">אירועים מחוץ לשיעור</string>
+    <string name="accommodations">התאמות</string>
+    <string name="schedule">מערכת שעות</string>
+    <string name="submission_and_exam_grades">ציוני הגשה ובגרות</string>
+    <string name="ongoing_grades">ציונים שוטפים</string>
+    <string name="private_lessons">שעות פרטניות</string>
 </resources>

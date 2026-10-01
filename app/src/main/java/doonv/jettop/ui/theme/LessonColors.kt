@@ -3,6 +3,8 @@ package doonv.jettop.ui.theme
 import androidx.compose.ui.graphics.Color
 import doonv.jettop.data.DaySchedule
 import doonv.jettop.data.Lesson
+import doonv.jettop.ui.theme.GematriaUtils.LETTERS
+import doonv.jettop.ui.theme.GematriaUtils.VALUES
 
 /**
  * Port of Webtop's `SchedualeViewComponent` coloring
@@ -14,12 +16,6 @@ object LessonColors {
         "1193f5", "01a6f6", "00bbd6", "009788", "46af4a",
         "ff9801", "ffc100", "ffec16", "ccdd1d", "88c440",
         "ff5505", "7b5548", "9d9d9d", "5f7c8c", "000000"
-    )
-
-    private const val LETTERS = "אבגדהוזחטיכךלמםנןסעפףצץקרשת "
-    private val VALUES = listOf(
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 20, 30, 40, 40,
-        50, 50, 60, 70, 80, 80, 90, 90, 100, 200, 300, 400, 0
     )
 
     fun gemCalc(s: String): Int {
