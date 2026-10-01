@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="error_message">שגיאה</string>
+    <string name="retry">נסו שוב</string>
+    <string name="no_data">אין נתונים</string>
     <string name="no_lessons">אין שיעורים ביום זה.</string>
     <string-array name="days">
         <item>א</item>
