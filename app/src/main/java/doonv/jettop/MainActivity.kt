@@ -27,9 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -37,9 +34,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import doonv.jettop.data.LoginData
 import doonv.jettop.ui.AuthState
@@ -130,20 +129,27 @@ fun HomeScaffold(loginData: LoginData) {
 
 @Composable
 fun HomeBottomBar(navController: NavHostController) {
-    val startDestination = Destination.MAIN
-    var selectedDestination by rememberSaveable { mutableIntStateOf(startDestination.ordinal) }
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+
     val countersVm: MenuCountersViewModel = viewModel()
     val count = countersVm.unreadMessages.collectAsStateWithLifecycle().value
+
     NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-        Destination.entries.forEachIndexed { index, destination ->
+        Destination.entries.forEach { destination ->
             val label = stringResource(destination.label)
-            NavigationBarItem(selected = selectedDestination == index, onClick = {
-                navController.navigate(route = destination.route)
-                selectedDestination = index
+            NavigationBarItem(selected = currentRoute == destination.route, onClick = {
+                navController.navigate(route = destination.route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
             }, icon = {
                 val icon = @Composable {
                     Icon(
-                        if (selectedDestination == index) destination.selectedIcon else destination.icon,
+                        if (currentRoute == destination.route) destination.selectedIcon else destination.icon,
                         contentDescription = label
                     )
                 }
