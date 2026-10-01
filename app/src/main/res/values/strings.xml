@@ -23,7 +23,7 @@
     <string name="login_reset_unimplemented">Password reset is not implemented yet. Use the official app or website instead.</string>
     <string name="login_error_invalid">Incorrect username or password.</string>
     <string name="login_error_network">Network error, try again.</string>
-    <string name="schedule_error_missing_details">Account details are missing, please log in again.</string>
+    <string name="login_error_missing_details">Account details are missing, please log in again.</string>
     <string name="greeting_morning">Good morning, %1$s</string>
     <string name="just_now">just now</string>
     <string name="last_updated">Last updated: %1$s.</string>

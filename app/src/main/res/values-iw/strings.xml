@@ -20,7 +20,7 @@
     <string name="login_reset_unimplemented">איפוס סיסמה אינו נתמך עדיין. השתמשו באפליקציה הרשמית או באתר.</string>
     <string name="login_error_invalid">שם המשתמש או הסיסמה שגויים.</string>
     <string name="login_error_network">שגיאת רשת, נסו שוב.</string>
-    <string name="schedule_error_missing_details">פרטי החשבון חסרים, אנא התחברו שוב.</string>
+    <string name="login_error_missing_details">פרטי החשבון חסרים, אנא התחברו שוב.</string>
     <string name="greeting_morning">בוקר טוב, %1$s</string>
     <string name="just_now">רק עכשיו</string>
     <string name="last_updated">עודכן לאחרונה: %1$s.</string>

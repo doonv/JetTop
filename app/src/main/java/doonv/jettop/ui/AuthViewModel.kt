@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.SerializationException
 
 sealed interface AuthState {
@@ -44,6 +46,7 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
             else AuthState.LoggedOut()
         )
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun login(username: String, password: String) {
         viewModelScope.launch {
             _login.value = AuthState.LoggedOut(isLoading = true)
@@ -64,6 +67,11 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
                         ?: getApplication<Application>().getString(R.string.login_error_invalid)
                     )
                 }
+            } catch (e: MissingFieldException) {
+                _login.value = AuthState.LoggedOut(
+                    error = getApplication<Application>()
+                        .getString(R.string.login_error_missing_details)
+                )
             } catch (e: SerializationException) {
                 _login.value = AuthState.LoggedOut(
                     error = getApplication<Application>().getString(R.string.login_error_invalid)
