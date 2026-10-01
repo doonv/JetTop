@@ -140,7 +140,7 @@ fun HomeBottomBar(navController: NavHostController) {
                 }
                 if (destination == Destination.MESSAGES && count != null && count > 0) {
                     BadgedBox(badge = {
-                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                             Badge {
                                 Text(if (count > 99) "99+" else count.toString())
                             }
