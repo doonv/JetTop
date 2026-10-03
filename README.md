@@ -1,5 +1,9 @@
 # JetTop
 
+> [!WARNING]  
+> JetTop is very much unfinished. Most features don't work or don't exist at all.
+> See below for what *is* implemented.
+
 *Free and open source alternative to the [WebTop Android app](https://play.google.com/store/apps/details?id=com.smartschool.webtop).*
 
 Built with Jetpack Compose and Material 3 Expressive.
