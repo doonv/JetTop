@@ -1,6 +1,9 @@
 package doonv.jettop.data
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialInfo
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNamingStrategy
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -36,14 +39,48 @@ interface WebtopApi {
     suspend fun getMenuCounters(
         @Header("Cookie") cookie: String
     ): ApiResponse<MenuCounters>
+
+    /**
+     * Gets a list of up to 30 messages from your inbox.
+     */
+    @POST("server/api/messageBox/GetMessagesInbox")
+    suspend fun getMessagesInbox(
+        @Body body: MessagesInboxRequest,
+        @Header("Cookie") cookie: String
+    ): ApiResponse<List<InboxMessage>>
+
+    /**
+     * Gets a specific message's details. Also marks it as read.
+     */
+    @POST("server/api/messageBox/GetMessagesInboxData")
+    suspend fun getMessage(
+        @Body body: MessageDetailsRequest,
+        @Header("Cookie") cookie: String
+    ): ApiResponse<MessageDetails>
 }
 
+/**
+ * Converts all fields in the annotated class to PascalCase when serialized.
+ */
+// TODO: yknow I never actually checked if the server cares about case
+//       I might be doing this for nothing
+@OptIn(ExperimentalSerializationApi::class)
+@SerialInfo
+@Target(AnnotationTarget.CLASS)
+annotation class PascalCase
+
 object ApiClient {
+    @OptIn(ExperimentalSerializationApi::class)
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
         isLenient = true
         encodeDefaults = true
+        namingStrategy = JsonNamingStrategy { descriptor, _, serialName ->
+            if (descriptor.annotations.any { it is PascalCase })
+                serialName.replaceFirstChar { it.uppercaseChar() }
+            else serialName
+        }
     }
 
     private val http = OkHttpClient.Builder()

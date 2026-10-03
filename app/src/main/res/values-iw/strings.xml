@@ -33,4 +33,17 @@
     <string name="submission_and_exam_grades">ציוני הגשה ובגרות</string>
     <string name="ongoing_grades">ציונים שוטפים</string>
     <string name="private_lessons">שעות פרטניות</string>
+    <string name="search">חיפוש</string>
+    <string name="folder">תיקיות</string>
+    <string name="filter">סינון</string>
+    <string name="compose">הודעה חדשה</string>
+    <string name="has_attachments">קובץ מצורף</string>
+    <string name="back">חזרה</string>
+    <string name="delete">מחיקה</string>
+    <string name="reply">תשובה</string>
+    <string name="forward">העבר</string>
+    <string name="download">הורדה</string>
+    <string name="unknown_error">שגיאה לא ידועה</string>
+    <string name="message_no_subject">ללא נושא</string>
+    <string name="message_unknown_sender">לא ידוע</string>
 </resources>

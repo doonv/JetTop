@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -26,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -40,15 +43,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import doonv.jettop.data.LoginData
 import doonv.jettop.ui.AuthState
 import doonv.jettop.ui.AuthViewModel
 import doonv.jettop.ui.DashboardScreen
 import doonv.jettop.ui.LoginScreen
 import doonv.jettop.ui.MenuCountersViewModel
+import doonv.jettop.ui.MessageDetailsScreen
+import doonv.jettop.ui.MessageDetailsViewModel
+import doonv.jettop.ui.MessagesScreen
+import doonv.jettop.ui.MessagesViewModel
 import doonv.jettop.ui.ScheduleViewModel
 import doonv.jettop.ui.StudentCardScreen
 import doonv.jettop.ui.theme.JetTopTheme
+import kotlinx.serialization.Serializable
 
 enum class Destination(
     val route: String,
@@ -65,6 +74,10 @@ enum class Destination(
         Icons.Filled.AccountBox
     )
 }
+
+@Serializable
+data class MessageDetailsPage(val id: String)
+
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -94,12 +107,20 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun HomeScaffold(loginData: LoginData) {
     val navController = rememberNavController()
+    val countersVm: MenuCountersViewModel = viewModel()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { HomeBottomBar(navController) }
+        // Don't add any window insets here so we don't have to deal with them when
+        // we add a top bar in MessagesScreen
+        contentWindowInsets = WindowInsets(),
+        bottomBar = { HomeBottomBar(navController, countersVm) },
     ) { innerPadding ->
+        val modifier = Modifier
+            .padding(innerPadding)
+            .consumeWindowInsets(innerPadding)
         val scheduleVm: ScheduleViewModel = viewModel()
+        val messagesVm: MessagesViewModel = viewModel()
         NavHost(
             navController = navController,
             startDestination = Destination.MAIN.route,
@@ -109,16 +130,38 @@ fun HomeScaffold(loginData: LoginData) {
             popExitTransition = { ExitTransition.None }) {
             composable(Destination.MAIN.route) {
                 DashboardScreen(
-                    modifier = Modifier.padding(innerPadding),
+                    modifier = modifier,
                     vm = scheduleVm
                 )
             }
             composable(Destination.MESSAGES.route) {
-
+                MessagesScreen(
+                    modifier = modifier,
+                    vm = messagesVm,
+                    onRefresh = {
+                        countersVm.refresh()
+                    },
+                    onMessageClick = { message ->
+                        if (!message.isRead) countersVm.markRead()
+                        messagesVm.markRead(message.messageId)
+                        navController.navigate(MessageDetailsPage(id = message.messageId))
+                    }
+                )
+            }
+            composable<MessageDetailsPage> { entry ->
+                val route = entry.toRoute<MessageDetailsPage>()
+                val vm: MessageDetailsViewModel = viewModel()
+                LaunchedEffect(route.id) { vm.load(route.id) }
+                MessageDetailsScreen(
+                    modifier = modifier,
+                    vm = vm,
+                    onBack = { navController.popBackStack() },
+                    messageId = route.id
+                )
             }
             composable(Destination.STUDENT_CARD.route) {
                 StudentCardScreen(
-                    modifier = Modifier.padding(innerPadding),
+                    modifier = modifier,
                     loginData
                 )
             }
@@ -128,11 +171,11 @@ fun HomeScaffold(loginData: LoginData) {
 }
 
 @Composable
-fun HomeBottomBar(navController: NavHostController) {
+fun HomeBottomBar(navController: NavHostController, countersVm: MenuCountersViewModel) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    val countersVm: MenuCountersViewModel = viewModel()
+
     val count = countersVm.unreadMessages.collectAsStateWithLifecycle().value
 
     NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {

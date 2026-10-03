@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MenuCountersViewModel(app: Application) : AndroidViewModel(app) {
@@ -50,5 +51,12 @@ class MenuCountersViewModel(app: Application) : AndroidViewModel(app) {
             }
             fetch(login)
         }
+    }
+
+    /**
+     * Mark a message as read, decrementing the counter
+     */
+    fun markRead() {
+        _unreadMessages.update { it?.minus(1)?.coerceAtLeast(0) }
     }
 }

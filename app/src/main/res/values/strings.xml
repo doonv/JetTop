@@ -33,4 +33,17 @@
     <string name="submission_and_exam_grades">Submission &amp; Exam Grades</string>
     <string name="ongoing_grades">Ongoing Grades</string>
     <string name="private_lessons">Private Lessons</string>
+    <string name="search">Search</string>
+    <string name="folder">Folders</string>
+    <string name="filter">Filter</string>
+    <string name="compose">New message</string>
+    <string name="has_attachments">Has attachment</string>
+    <string name="back">Back</string>
+    <string name="delete">Delete</string>
+    <string name="reply">Reply</string>
+    <string name="forward">Forward</string>
+    <string name="download">Download</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="message_no_subject">No subject</string>
+    <string name="message_unknown_sender">Unknown</string>
 </resources>
