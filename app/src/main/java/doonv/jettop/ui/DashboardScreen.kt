@@ -27,6 +27,8 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -73,10 +75,25 @@ fun DashboardScreen(
     modifier: Modifier = Modifier, vm: ScheduleViewModel = viewModel()
 ) {
     val state by vm.state.collectAsState()
-    PullToRefreshBox(isRefreshing = state.refreshing(), onRefresh = { vm.refresh() }) {
-        Column(modifier = modifier
-            .fillMaxSize()
-            .statusBarsPadding()) {
+    val pullToRefreshState = rememberPullToRefreshState()
+
+    PullToRefreshBox(
+        isRefreshing = state.refreshing(),
+        onRefresh = { vm.refresh() },
+        state = pullToRefreshState,
+        indicator = {
+            PullToRefreshDefaults.LoadingIndicator(
+                isRefreshing = state.refreshing(),
+                modifier = Modifier.align(Alignment.TopCenter),
+                state = pullToRefreshState
+            )
+        }
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+        ) {
             when (val s = state) {
                 is ScheduleUiState.Loading -> Box(
                     Modifier.fillMaxSize(), contentAlignment = Alignment.Center

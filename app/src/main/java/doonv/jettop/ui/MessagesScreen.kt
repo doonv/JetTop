@@ -35,6 +35,8 @@ import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberSearchBarWithGapState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
@@ -82,15 +84,25 @@ fun MessagesScreen(
         floatingActionButton = { MessagesScreenFab() }
     ) { innerPadding ->
         val lazyPagingItems = vm.messages.collectAsLazyPagingItems()
+        val pullToRefreshState = rememberPullToRefreshState()
+        val isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading &&
+                lazyPagingItems.itemCount > 0
 
         PullToRefreshBox(
-            isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading &&
-                    lazyPagingItems.itemCount > 0,
+            isRefreshing = isRefreshing,
             onRefresh = {
                 lazyPagingItems.refresh()
                 onRefresh()
             },
+            state = pullToRefreshState,
             modifier = Modifier.padding(innerPadding),
+            indicator = {
+                PullToRefreshDefaults.LoadingIndicator(
+                    isRefreshing = isRefreshing,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    state = pullToRefreshState
+                )
+            }
         ) {
             when (val s = lazyPagingItems.loadState.refresh) {
                 is LoadState.Loading if lazyPagingItems.itemCount == 0 -> Box(
