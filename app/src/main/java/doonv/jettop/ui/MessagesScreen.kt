@@ -13,11 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.outlined.AttachFile
-import androidx.compose.material.icons.outlined.FilterList
-import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material3.AppBarWithSearch
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -66,6 +61,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import doonv.jettop.R
 import doonv.jettop.data.InboxMessage
+import doonv.jettop.ui.theme.Symbols
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -195,7 +191,7 @@ private fun MessagesScreenFab() {
         state = rememberTooltipState(),
     ) {
         FloatingActionButton(onClick = { /* do something */ }) {
-            Icon(Icons.Filled.Edit, stringResource(R.string.compose))
+            Icon(Symbols.Filled.Edit, stringResource(R.string.compose))
         }
     }
 }
@@ -253,7 +249,7 @@ fun MessageRow(
                 )
                 if (message.hasAttachments) {
                     Icon(
-                        Icons.Outlined.AttachFile,
+                        Symbols.Outlined.AttachFile,
                         contentDescription = stringResource(R.string.has_attachments),
                         modifier = Modifier.size(14.dp),
                         tint = textColor
@@ -307,7 +303,7 @@ private fun MessagesTopBar(
         navigationIcon = {
             IconButton(onClick = { }) {
                 Icon(
-                    Icons.Outlined.Folder,
+                    Symbols.Outlined.Folder,
                     contentDescription = stringResource(R.string.folder)
                 )
             }
@@ -315,7 +311,7 @@ private fun MessagesTopBar(
         actions = {
             IconButton(onClick = { }) {
                 Icon(
-                    Icons.Outlined.FilterList,
+                    Symbols.Outlined.FilterList,
                     contentDescription = stringResource(R.string.filter)
                 )
             }

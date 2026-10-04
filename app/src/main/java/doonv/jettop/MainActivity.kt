@@ -10,13 +10,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.outlined.AccountBox
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -56,6 +49,7 @@ import doonv.jettop.ui.MessagesScreen
 import doonv.jettop.ui.MessagesViewModel
 import doonv.jettop.ui.ScheduleViewModel
 import doonv.jettop.ui.StudentCardScreen
+import doonv.jettop.ui.theme.Symbols
 import doonv.jettop.ui.theme.JetTopTheme
 import kotlinx.serialization.Serializable
 
@@ -65,13 +59,13 @@ enum class Destination(
     val icon: ImageVector,
     val selectedIcon: ImageVector,
 ) {
-    MAIN("main", R.string.main, Icons.Outlined.Home, Icons.Filled.Home),
-    MESSAGES("messages", R.string.messages, Icons.Outlined.Email, Icons.Filled.Email),
+    MAIN("main", R.string.main, Symbols.Outlined.Home, Symbols.Filled.Home),
+    MESSAGES("messages", R.string.messages, Symbols.Outlined.Mail, Symbols.Filled.Mail),
     STUDENT_CARD(
         "student_card",
         R.string.student_card,
-        Icons.Outlined.AccountBox,
-        Icons.Filled.AccountBox
+        Symbols.Outlined.AccountBox,
+        Symbols.Filled.AccountBox
     )
 }
 

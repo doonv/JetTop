@@ -11,14 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.EventNote
-import androidx.compose.material.icons.filled.AssignmentTurnedIn
-import androidx.compose.material.icons.filled.Campaign
-import androidx.compose.material.icons.filled.Grading
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Psychology
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import doonv.jettop.R
 import doonv.jettop.data.LoginData
+import doonv.jettop.ui.theme.Symbols
 import doonv.jettop.ui.theme.GematriaUtils
 
 
@@ -60,7 +53,7 @@ fun StudentCardScreen(
             )
             IconButton(onClick = {}) {
                 Icon(
-                    Icons.Filled.Settings,
+                    Symbols.Filled.Settings,
                     contentDescription = "Settings"
                 )
             }
@@ -77,14 +70,12 @@ fun StudentCardScreen(
         )
         MenuGrid(
             listOf(
-                MenuTile(R.string.lesson_events, Icons.AutoMirrored.Filled.EventNote) {},
-                MenuTile(R.string.non_lesson_events, Icons.Filled.Campaign) {},
-                MenuTile(R.string.accommodations, Icons.Filled.Psychology) {},
-                MenuTile(R.string.private_lessons, Icons.Filled.Group) {},
-                MenuTile(R.string.submission_and_exam_grades, Icons.Filled.AssignmentTurnedIn) {},
-                // ik this is deprecated but the automirrored version looks awful with the mirrored checkmark
-                @Suppress("DEPRECATION")
-                MenuTile(R.string.ongoing_grades, Icons.Filled.Grading) {},
+                MenuTile(R.string.lesson_events, Symbols.Filled.EventNote) {},
+                MenuTile(R.string.non_lesson_events, Symbols.Filled.Campaign) {},
+                MenuTile(R.string.accommodations, Symbols.Filled.Psychology) {},
+                MenuTile(R.string.private_lessons, Symbols.Filled.Group) {},
+                MenuTile(R.string.submission_and_exam_grades, Symbols.Filled.AssignmentTurnedIn) {},
+                MenuTile(R.string.ongoing_grades, Symbols.Filled.Grading) {},
             )
         )
     }

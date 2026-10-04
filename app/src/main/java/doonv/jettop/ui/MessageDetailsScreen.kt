@@ -11,12 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Forward
-import androidx.compose.material.icons.automirrored.outlined.Reply
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -52,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import doonv.jettop.R
 import doonv.jettop.data.MessageDetails
+import doonv.jettop.ui.theme.Symbols
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -70,7 +65,7 @@ fun MessageDetailsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            Icons.AutoMirrored.Outlined.ArrowBack,
+                            Symbols.Outlined.ArrowBack,
                             contentDescription = stringResource(R.string.back)
                         )
                     }
@@ -78,19 +73,19 @@ fun MessageDetailsScreen(
                 actions = {
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(
-                            Icons.Outlined.Delete,
+                            Symbols.Outlined.Delete,
                             contentDescription = stringResource(R.string.delete)
                         )
                     }
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(
-                            Icons.AutoMirrored.Outlined.Reply,
+                            Symbols.Outlined.Reply,
                             contentDescription = stringResource(R.string.reply)
                         )
                     }
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(
-                            Icons.AutoMirrored.Outlined.Forward,
+                            Symbols.Outlined.Forward,
                             contentDescription = stringResource(R.string.forward)
                         )
                     }
@@ -212,7 +207,7 @@ private fun MessageDetailsSuccess(
                     message.filesList.forEach { file ->
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Icon(
-                                Icons.Filled.Download,
+                                Symbols.Filled.Download,
                                 contentDescription = stringResource(R.string.download)
                             )
                             Text(
