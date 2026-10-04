@@ -191,7 +191,7 @@ private fun MessagesScreenFab() {
         state = rememberTooltipState(),
     ) {
         FloatingActionButton(onClick = { /* do something */ }) {
-            Icon(Symbols.Filled.Edit, stringResource(R.string.compose))
+            Icon(Symbols.Filled.Edit24, stringResource(R.string.compose))
         }
     }
 }
@@ -249,7 +249,7 @@ fun MessageRow(
                 )
                 if (message.hasAttachments) {
                     Icon(
-                        Symbols.Outlined.AttachFile,
+                        Symbols.Outlined.AttachFile20,
                         contentDescription = stringResource(R.string.has_attachments),
                         modifier = Modifier.size(14.dp),
                         tint = textColor
@@ -303,7 +303,7 @@ private fun MessagesTopBar(
         navigationIcon = {
             IconButton(onClick = { }) {
                 Icon(
-                    Symbols.Outlined.Folder,
+                    Symbols.Outlined.Folder24,
                     contentDescription = stringResource(R.string.folder)
                 )
             }
@@ -311,7 +311,7 @@ private fun MessagesTopBar(
         actions = {
             IconButton(onClick = { }) {
                 Icon(
-                    Symbols.Outlined.FilterList,
+                    Symbols.Outlined.FilterList24,
                     contentDescription = stringResource(R.string.filter)
                 )
             }

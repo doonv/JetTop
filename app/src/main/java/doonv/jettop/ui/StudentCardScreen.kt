@@ -53,7 +53,7 @@ fun StudentCardScreen(
             )
             IconButton(onClick = {}) {
                 Icon(
-                    Symbols.Filled.Settings,
+                    Symbols.Filled.Settings24,
                     contentDescription = "Settings"
                 )
             }
@@ -70,12 +70,12 @@ fun StudentCardScreen(
         )
         MenuGrid(
             listOf(
-                MenuTile(R.string.lesson_events, Symbols.Filled.EventNote) {},
-                MenuTile(R.string.non_lesson_events, Symbols.Filled.Campaign) {},
-                MenuTile(R.string.accommodations, Symbols.Filled.Psychology) {},
-                MenuTile(R.string.private_lessons, Symbols.Filled.Group) {},
-                MenuTile(R.string.submission_and_exam_grades, Symbols.Filled.AssignmentTurnedIn) {},
-                MenuTile(R.string.ongoing_grades, Symbols.Filled.Grading) {},
+                MenuTile(R.string.lesson_events, Symbols.Filled.EventNote32) {},
+                MenuTile(R.string.non_lesson_events, Symbols.Filled.Campaign32) {},
+                MenuTile(R.string.accommodations, Symbols.Filled.Psychology32) {},
+                MenuTile(R.string.private_lessons, Symbols.Filled.Group32) {},
+                MenuTile(R.string.submission_and_exam_grades, Symbols.Filled.AssignmentTurnedIn32) {},
+                MenuTile(R.string.ongoing_grades, Symbols.Filled.Grading32) {},
             )
         )
     }

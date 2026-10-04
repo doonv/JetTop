@@ -65,7 +65,7 @@ fun MessageDetailsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            Symbols.Outlined.ArrowBack,
+                            Symbols.Outlined.ArrowBack24,
                             contentDescription = stringResource(R.string.back)
                         )
                     }
@@ -73,19 +73,19 @@ fun MessageDetailsScreen(
                 actions = {
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(
-                            Symbols.Outlined.Delete,
+                            Symbols.Outlined.Delete24,
                             contentDescription = stringResource(R.string.delete)
                         )
                     }
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(
-                            Symbols.Outlined.Reply,
+                            Symbols.Outlined.Reply24,
                             contentDescription = stringResource(R.string.reply)
                         )
                     }
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(
-                            Symbols.Outlined.Forward,
+                            Symbols.Outlined.Forward24,
                             contentDescription = stringResource(R.string.forward)
                         )
                     }
@@ -207,7 +207,7 @@ private fun MessageDetailsSuccess(
                     message.filesList.forEach { file ->
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Icon(
-                                Symbols.Filled.Download,
+                                Symbols.Filled.Download24,
                                 contentDescription = stringResource(R.string.download)
                             )
                             Text(

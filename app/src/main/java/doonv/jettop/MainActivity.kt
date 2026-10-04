@@ -59,13 +59,13 @@ enum class Destination(
     val icon: ImageVector,
     val selectedIcon: ImageVector,
 ) {
-    MAIN("main", R.string.main, Symbols.Outlined.Home, Symbols.Filled.Home),
-    MESSAGES("messages", R.string.messages, Symbols.Outlined.Mail, Symbols.Filled.Mail),
+    MAIN("main", R.string.main, Symbols.Outlined.Home24, Symbols.Filled.Home24),
+    MESSAGES("messages", R.string.messages, Symbols.Outlined.Mail24, Symbols.Filled.Mail24),
     STUDENT_CARD(
         "student_card",
         R.string.student_card,
-        Symbols.Outlined.AccountBox,
-        Symbols.Filled.AccountBox
+        Symbols.Outlined.AccountBox24,
+        Symbols.Filled.AccountBox24
     )
 }
 
