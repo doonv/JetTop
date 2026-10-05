@@ -41,6 +41,7 @@ import androidx.compose.material3.rememberSearchBarWithGapState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -154,7 +156,7 @@ private fun MessagesList(
     onMessageClick: (InboxMessage) -> Unit,
 ) {
     val defaultLayoutDirection = LocalLayoutDirection.current
-
+    val locallyRead by vm.locallyRead.collectAsStateWithLifecycle()
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -174,9 +176,10 @@ private fun MessagesList(
                     bottomEnd = if (index == count - 1) rounded.bottomEnd else base.bottomEnd,
                     bottomStart = if (index == count - 1) rounded.bottomStart else base.bottomStart,
                 )
+                val msg = if (message.messageId in locallyRead) message.copy(hasRead = 1) else message
 
                 MessageRow(
-                    message,
+                    msg,
                     onClick = { onMessageClick(message) },
                     itemShape,
                     defaultLayoutDirection
