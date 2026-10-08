@@ -92,7 +92,10 @@ data class LoginData(
     val lastResetDate: String? = null,
     val lastPasswordChangeDate: String? = null,
     val lastLoginDate: String? = null,
-    val classCode: String, // grade number?
+    /**
+     * The grade the user is in.
+     */
+    val classCode: Int? = null, // Technically a string for some reason, but isLenient = true allows it
     val classNumber: Int? = null,
     val isSchoolyAdministrator: Boolean = false,
     val token: String,

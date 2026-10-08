@@ -60,7 +60,7 @@ fun StudentCardScreen(
         }
         Text(
             listOfNotNull(
-                loginData.classCode.toIntOrNull()?.let { GematriaUtils.fromNum(it) }
+                loginData.classCode?.let { GematriaUtils.fromNum(it) }
                     ?: loginData.classCode,
                 loginData.classNumber?.toString()
             ).joinToString(" "),
