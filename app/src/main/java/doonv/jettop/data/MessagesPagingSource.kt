@@ -3,6 +3,7 @@ package doonv.jettop.data
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.CancellationException
+import retrofit2.HttpException
 import java.io.IOException
 
 class MessagesPagingSource(
@@ -10,6 +11,7 @@ class MessagesPagingSource(
     private val cookie: String,
     private val labelId: Int,
     private val query: String,
+    private val logout: () -> Unit
 ) : PagingSource<Int, InboxMessage>() {
     override suspend fun load(
         params: LoadParams<Int>
@@ -36,6 +38,11 @@ class MessagesPagingSource(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
+            if (e is HttpException && e.code() == 401) {
+                logout()
+                // Return an empty page until the login page loads
+                return LoadResult.Page(emptyList(), null, null)
+            }
             // TODO: do proper error handling
             return LoadResult.Error(e)
         }

@@ -21,6 +21,11 @@ interface WebtopApi {
     @POST("server/api/user/LoginByUserNameAndPassword")
     suspend fun login(@Body body: LoginRequest): ApiResponse<LoginData>
 
+    /**
+     * Get the current weekly schedule.
+     *
+     * @return an empty week on token expiry.
+     */
     @POST("server/api/shotef/ShotefSchedualeData")
     suspend fun getSchedule(
         @Body body: ScheduleRequest,
@@ -42,6 +47,8 @@ interface WebtopApi {
 
     /**
      * Gets a list of up to 30 messages from your inbox.
+     *
+     * @throws [retrofit2.HttpException] with code 401 on token expiry.
      */
     @POST("server/api/messageBox/GetMessagesInbox")
     suspend fun getMessagesInbox(

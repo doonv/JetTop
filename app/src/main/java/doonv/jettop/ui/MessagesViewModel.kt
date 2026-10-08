@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class MessagesViewModel(app: Application) : AndroidViewModel(app) {
     private val api: WebtopApi = ApiClient.api
@@ -32,15 +33,16 @@ class MessagesViewModel(app: Application) : AndroidViewModel(app) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val messages: Flow<PagingData<InboxMessage>> =
-        store.data.map { it.login }
-            .distinctUntilChanged()
-            .flatMapLatest { login ->
+        store.data.map { it.login }.distinctUntilChanged().flatMapLatest { login ->
                 if (login == null) return@flatMapLatest emptyFlow()
                 Pager(PagingConfig(pageSize = 15, prefetchDistance = 5)) {
-                    MessagesPagingSource(api, login.cookie(), 0, "")
+                    MessagesPagingSource(api, login.cookie(), 0, "", logout = {
+                        viewModelScope.launch {
+                            store.updateData { it.copy(login = null) }
+                        }
+                    })
                 }.flow
-            }
-            .cachedIn(viewModelScope)
+            }.cachedIn(viewModelScope)
 
     fun markRead(messageId: String) = _locallyRead.update { it + messageId }
 }
