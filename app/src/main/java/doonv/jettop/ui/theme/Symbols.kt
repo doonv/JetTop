@@ -738,6 +738,156 @@ object Symbols {
                 .build()
         }
 
+        val Gavel24: ImageVector by lazy {
+            ImageVector.Builder(
+                name = "gavel",
+                defaultWidth = 24.dp,
+                defaultHeight = 24.dp,
+                viewportWidth = 24f,
+                viewportHeight = 24f,
+            )
+                .apply {
+                    path(
+                        fill = SolidColor(Color.Black),
+                        fillAlpha = 1f,
+                        stroke = null,
+                        strokeAlpha = 1f,
+                        strokeLineWidth = 1f,
+                        strokeLineCap = StrokeCap.Butt,
+                        strokeLineJoin = StrokeJoin.Bevel,
+                        strokeLineMiter = 1f,
+                        pathFillType = PathFillType.NonZero,
+                    ) {
+                        moveTo(4f, 21f)
+                        verticalLineTo(19f)
+                        horizontalLineTo(16f)
+                        verticalLineToRelative(2f)
+                        horizontalLineTo(4f)
+                        close()
+                        moveTo(9.65f, 16.15f)
+                        lineTo(4f, 10.5f)
+                        lineTo(6.1f, 8.35f)
+                        lineTo(11.8f, 14f)
+                        lineTo(9.65f, 16.15f)
+                        close()
+                        moveTo(16f, 9.8f)
+                        lineTo(10.35f, 4.1f)
+                        lineTo(12.5f, 2f)
+                        lineToRelative(5.65f, 5.65f)
+                        lineTo(16f, 9.8f)
+                        close()
+                        moveTo(20.6f, 20f)
+                        lineTo(7.55f, 6.95f)
+                        lineToRelative(1.4f, -1.4f)
+                        lineTo(22f, 18.6f)
+                        lineTo(20.6f, 20f)
+                        close()
+                    }
+                }
+                .build()
+        }
+
+        // Custom modification of Gavel20
+        val GavelOnly20: ImageVector by lazy {
+            ImageVector.Builder(
+                name = "gavel_only",
+                defaultWidth = 20.dp,
+                defaultHeight = 20.dp,
+                viewportWidth = 20f,
+                viewportHeight = 20f,
+            )
+                .apply {
+                    path(
+                        fill = SolidColor(Color.Black),
+                        fillAlpha = 1f,
+                        stroke = null,
+                        strokeAlpha = 1f,
+                        strokeLineWidth = 1f,
+                        strokeLineCap = StrokeCap.Butt,
+                        strokeLineJoin = StrokeJoin.Bevel,
+                        strokeLineMiter = 1f,
+                        pathFillType = PathFillType.Companion.NonZero,
+                    ) {
+                        moveTo(8.25f, 12.94f)
+                        lineTo(4f, 8.71f)
+                        lineTo(5.77f, 6.94f)
+                        lineTo(10f, 11.19f)
+                        lineTo(8.25f, 12.94f)
+                        close()
+                        moveTo(13.19f, 8f)
+                        lineTo(8.96f, 3.77f)
+                        lineTo(10.71f, 2f)
+                        lineToRelative(4.25f, 4.25f)
+                        lineTo(13.19f, 8f)
+                        close()
+                        moveToRelative(3.75f, 8f)
+                        lineTo(6.81f, 5.88f)
+                        lineTo(7.88f, 4.81f)
+                        lineTo(18f, 14.94f)
+                        lineTo(16.94f, 16f)
+                        close()
+                    }
+                }
+                .build()
+        }
+
+        // Custom modification of Gavel24
+        val GavelPlus24: ImageVector by lazy {
+            ImageVector.Builder(
+                name = "gavel_plus",
+                defaultWidth = 24.dp,
+                defaultHeight = 24.dp,
+                viewportWidth = 24f,
+                viewportHeight = 24f,
+            )
+                .apply {
+                    path(
+                        fill = SolidColor(Color.Black),
+                        fillAlpha = 1f,
+                        stroke = null,
+                        strokeAlpha = 1f,
+                        strokeLineWidth = 1f,
+                        strokeLineCap = StrokeCap.Butt,
+                        strokeLineJoin = StrokeJoin.Bevel,
+                        strokeLineMiter = 1f,
+                        pathFillType = PathFillType.NonZero,
+                    ) {
+                        moveTo(5f, 21f)
+                        verticalLineTo(19f)
+                        horizontalLineTo(7f)
+                        verticalLineTo(17f)
+                        horizontalLineTo(5f)
+                        verticalLineTo(15f)
+                        horizontalLineTo(3f)
+                        verticalLineTo(17f)
+                        horizontalLineTo(1f)
+                        verticalLineTo(19f)
+                        horizontalLineTo(3f)
+                        verticalLineToRelative(2f)
+                        close()
+                        moveTo(9.65f, 16.15f)
+                        lineTo(4f, 10.5f)
+                        lineTo(6.1f, 8.35f)
+                        lineTo(11.8f, 14f)
+                        lineTo(9.65f, 16.15f)
+                        close()
+                        moveTo(16f, 9.8f)
+                        lineTo(10.35f, 4.1f)
+                        lineTo(12.5f, 2f)
+                        lineToRelative(5.65f, 5.65f)
+                        lineTo(16f, 9.8f)
+                        close()
+                        moveTo(20.6f, 20f)
+                        lineTo(7.55f, 6.95f)
+                        lineToRelative(1.4f, -1.4f)
+                        lineTo(22f, 18.6f)
+                        lineTo(20.6f, 20f)
+                        close()
+                    }
+                }
+                .build()
+        }
+
     }
 
     object Outlined {
@@ -1272,6 +1422,50 @@ object Symbols {
                         reflectiveQuadTo(4f, 15f)
                         verticalLineToRelative(4f)
                         horizontalLineTo(2f)
+                        close()
+                    }
+                }
+                .build()
+        }
+
+        val Sort24: ImageVector by lazy {
+            ImageVector.Builder(
+                name = "sort",
+                defaultWidth = 24.dp,
+                defaultHeight = 24.dp,
+                viewportWidth = 24f,
+                viewportHeight = 24f,
+                autoMirror = true,
+            )
+                .apply {
+                    path(
+                        fill = SolidColor(Color.Black),
+                        fillAlpha = 1f,
+                        stroke = null,
+                        strokeAlpha = 1f,
+                        strokeLineWidth = 1f,
+                        strokeLineCap = StrokeCap.Butt,
+                        strokeLineJoin = StrokeJoin.Bevel,
+                        strokeLineMiter = 1f,
+                        pathFillType = PathFillType.NonZero,
+                    ) {
+                        moveTo(3f, 18f)
+                        verticalLineTo(16f)
+                        horizontalLineTo(9f)
+                        verticalLineToRelative(2f)
+                        horizontalLineTo(3f)
+                        close()
+                        moveTo(3f, 13f)
+                        verticalLineTo(11f)
+                        horizontalLineTo(15f)
+                        verticalLineToRelative(2f)
+                        horizontalLineTo(3f)
+                        close()
+                        moveTo(3f, 8f)
+                        verticalLineTo(6f)
+                        horizontalLineTo(21f)
+                        verticalLineTo(8f)
+                        horizontalLineTo(3f)
                         close()
                     }
                 }

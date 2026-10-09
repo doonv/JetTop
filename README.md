@@ -33,7 +33,10 @@ Built with Jetpack Compose and Material 3 Expressive.
   - [ ] Multi-select
   - [ ] Compose
 - [x] Student Card
-  - [ ] Class Events
+  - [x] Class Events
+    - [ ] Compose justifications
+    - [ ] View justification requests
+    - [ ] Filter/search events
   - [ ] Events outside of class
   - [ ] Private lessons
   - [ ] Grades

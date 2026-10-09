@@ -30,11 +30,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import doonv.jettop.data.LoginData
@@ -48,33 +52,42 @@ import doonv.jettop.ui.MessageDetailsViewModel
 import doonv.jettop.ui.MessagesScreen
 import doonv.jettop.ui.MessagesViewModel
 import doonv.jettop.ui.ScheduleViewModel
-import doonv.jettop.ui.StudentCardScreen
-import doonv.jettop.ui.theme.Symbols
+import doonv.jettop.ui.studentcard.StudentCardGraph
+import doonv.jettop.ui.studentcard.studentCardGraph
 import doonv.jettop.ui.theme.JetTopTheme
+import doonv.jettop.ui.theme.Symbols
 import kotlinx.serialization.Serializable
 
+@Serializable
+data object MainRoute
+
+@Serializable
+data object MessagesRoute
+
+@Serializable
+data object MessageInbox
+
+@Serializable
+data class MessageDetailsPage(val id: String)
+
 enum class Destination(
-    val route: String,
+    val route: Any,
     val label: Int,
     val icon: ImageVector,
     val selectedIcon: ImageVector,
 ) {
-    MAIN("main", R.string.main, Symbols.Outlined.Home24, Symbols.Filled.Home24),
-    MESSAGES("messages", R.string.messages, Symbols.Outlined.Mail24, Symbols.Filled.Mail24),
+    MAIN(MainRoute, R.string.main, Symbols.Outlined.Home24, Symbols.Filled.Home24),
+    MESSAGES(MessagesRoute, R.string.messages, Symbols.Outlined.Mail24, Symbols.Filled.Mail24),
     STUDENT_CARD(
-        "student_card",
+        StudentCardGraph,
         R.string.student_card,
         Symbols.Outlined.AccountBox24,
         Symbols.Filled.AccountBox24
     )
 }
 
-@Serializable
-data class MessageDetailsPage(val id: String)
-
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -117,65 +130,70 @@ fun HomeScaffold(loginData: LoginData) {
         val messagesVm: MessagesViewModel = viewModel()
         NavHost(
             navController = navController,
-            startDestination = Destination.MAIN.route,
+            startDestination = MainRoute,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }) {
-            composable(Destination.MAIN.route) {
+            composable<MainRoute> {
                 DashboardScreen(
                     modifier = modifier,
                     vm = scheduleVm
                 )
             }
-            composable(Destination.MESSAGES.route) {
-                MessagesScreen(
-                    modifier = modifier,
-                    vm = messagesVm,
-                    onRefresh = {
-                        countersVm.refresh()
-                    },
-                    onMessageClick = { message ->
-                        if (!message.isRead) countersVm.markRead()
-                        messagesVm.markRead(message.messageId)
-                        navController.navigate(MessageDetailsPage(id = message.messageId))
-                    }
-                )
-            }
-            composable<MessageDetailsPage> { entry ->
-                val route = entry.toRoute<MessageDetailsPage>()
-                val vm: MessageDetailsViewModel = viewModel()
-                LaunchedEffect(route.id) { vm.load(route.id) }
-                MessageDetailsScreen(
-                    modifier = modifier,
-                    vm = vm,
-                    onBack = { navController.popBackStack() },
-                    messageId = route.id
-                )
-            }
-            composable(Destination.STUDENT_CARD.route) {
-                StudentCardScreen(
-                    modifier = modifier,
-                    loginData
-                )
-            }
+            messagesGraph(modifier, messagesVm, countersVm, navController)
+            studentCardGraph(navController, modifier, loginData)
         }
 
+    }
+}
+
+private fun NavGraphBuilder.messagesGraph(
+    modifier: Modifier,
+    messagesVm: MessagesViewModel,
+    countersVm: MenuCountersViewModel,
+    navController: NavHostController,
+) {
+    navigation<MessagesRoute>(startDestination = MessageInbox) {
+        composable<MessageInbox> {
+            MessagesScreen(
+                modifier = modifier,
+                vm = messagesVm,
+                onRefresh = {
+                    countersVm.refresh()
+                },
+                onMessageClick = { message ->
+                    if (!message.isRead) countersVm.markRead()
+                    messagesVm.markRead(message.messageId)
+                    navController.navigate(MessageDetailsPage(id = message.messageId))
+                }
+            )
+        }
+        composable<MessageDetailsPage> { entry ->
+            val route = entry.toRoute<MessageDetailsPage>()
+            val vm: MessageDetailsViewModel = viewModel()
+            LaunchedEffect(route.id) { vm.load(route.id) }
+            MessageDetailsScreen(
+                modifier = modifier,
+                vm = vm,
+                onBack = { navController.popBackStack() },
+                messageId = route.id
+            )
+        }
     }
 }
 
 @Composable
 fun HomeBottomBar(navController: NavHostController, countersVm: MenuCountersViewModel) {
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route
-
-
+    val hierarchy = backStackEntry?.destination?.hierarchy.orEmpty()
     val count = countersVm.unreadMessages.collectAsStateWithLifecycle().value
 
     NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
         Destination.entries.forEach { destination ->
             val label = stringResource(destination.label)
-            NavigationBarItem(selected = currentRoute == destination.route, onClick = {
+            val selected = hierarchy.any { it.hasRoute(destination.route::class) }
+            NavigationBarItem(selected = selected, onClick = {
                 navController.navigate(route = destination.route) {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
@@ -186,7 +204,7 @@ fun HomeBottomBar(navController: NavHostController, countersVm: MenuCountersView
             }, icon = {
                 val icon = @Composable {
                     Icon(
-                        if (currentRoute == destination.route) destination.selectedIcon else destination.icon,
+                        if (selected) destination.selectedIcon else destination.icon,
                         contentDescription = label
                     )
                 }

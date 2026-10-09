@@ -46,4 +46,9 @@
     <string name="unknown_error">שגיאה לא ידועה</string>
     <string name="message_no_subject">ללא נושא</string>
     <string name="message_unknown_sender">לא ידוע</string>
+    <string name="sort">מיון</string>
+    <string name="justify_event">הצדקה</string>
+    <string name="add_justification">הוספת הצדקה</string>
+    <string name="event_justified">מוצדק</string>
+    <string name="justification_notes">הערות להצדקה: %1$s</string>
 </resources>

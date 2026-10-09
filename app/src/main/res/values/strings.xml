@@ -46,4 +46,9 @@
     <string name="unknown_error">Unknown error</string>
     <string name="message_no_subject">No subject</string>
     <string name="message_unknown_sender">Unknown</string>
-</resources>
+    <string name="sort">Sort</string>
+    <string name="justify_event">Justify</string>
+    <string name="add_justification">Add justification</string>
+    <string name="event_justified">Justified</string>
+    <string name="justification_notes">Justification notes: %1$s</string>
+    </resources>

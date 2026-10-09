@@ -1,4 +1,4 @@
-package doonv.jettop.ui
+package doonv.jettop.ui.studentcard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,11 +30,11 @@ import doonv.jettop.data.LoginData
 import doonv.jettop.ui.theme.Symbols
 import doonv.jettop.ui.theme.GematriaUtils
 
-
 @Composable
 fun StudentCardScreen(
     modifier: Modifier = Modifier,
-    loginData: LoginData
+    loginData: LoginData,
+    onNavigate: (StudentCardRoute) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -69,14 +69,15 @@ fun StudentCardScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
         MenuGrid(
-            listOf(
-                MenuTile(R.string.lesson_events, Symbols.Filled.EventNote32) {},
-                MenuTile(R.string.non_lesson_events, Symbols.Filled.Campaign32) {},
-                MenuTile(R.string.accommodations, Symbols.Filled.Psychology32) {},
-                MenuTile(R.string.private_lessons, Symbols.Filled.Group32) {},
-                MenuTile(R.string.submission_and_exam_grades, Symbols.Filled.AssignmentTurnedIn32) {},
-                MenuTile(R.string.ongoing_grades, Symbols.Filled.Grading32) {},
-            )
+            tiles = listOf(
+                MenuTile(R.string.lesson_events, Symbols.Filled.EventNote32, StudentCardRoute.ClassEvents),
+                MenuTile(R.string.non_lesson_events, Symbols.Filled.Campaign32, StudentCardRoute.NonLessonEvents),
+                MenuTile(R.string.accommodations, Symbols.Filled.Psychology32, StudentCardRoute.Accommodations),
+                MenuTile(R.string.private_lessons, Symbols.Filled.Group32, StudentCardRoute.PrivateLessons),
+                MenuTile(R.string.submission_and_exam_grades, Symbols.Filled.AssignmentTurnedIn32, StudentCardRoute.SubmissionAndExamGrades),
+                MenuTile(R.string.ongoing_grades, Symbols.Filled.Grading32, StudentCardRoute.OngoingGrades),
+            ),
+            onNavigate = onNavigate,
         )
     }
 }
@@ -84,14 +85,15 @@ fun StudentCardScreen(
 private const val GridCols = 2
 
 private data class MenuTile(
-    val label: Int,              // string resource
+    val label: Int,
     val icon: ImageVector,
-    val onClick: () -> Unit,
+    val route: StudentCardRoute,
 )
 
 @Composable
 private fun MenuGrid(
     tiles: List<MenuTile>,
+    onNavigate: (StudentCardRoute) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -102,7 +104,7 @@ private fun MenuGrid(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 row.forEach { tile ->
                     FilledTonalButton(
-                        onClick = tile.onClick,
+                        onClick = { onNavigate(tile.route) },
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f),
