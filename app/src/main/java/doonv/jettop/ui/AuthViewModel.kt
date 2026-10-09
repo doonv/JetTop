@@ -56,9 +56,7 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
                     LoginRequest.forLogin(username, password, 0)
                 )
                 val data = resp.data
-                if (resp.status && data.token.isNotBlank()
-                    && data.institutionCode != 0 && data.classCode.isNotBlank()
-                ) {
+                if (resp.status && data.token.isNotBlank() && data.institutionCode != 0) {
                     store.updateData { it.copy(login = data) }
                     _login.value = AuthState.LoggedOut()
                 } else {
