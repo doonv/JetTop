@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
-data class LessonEventsRequest(
+data class DisciplineEventsRequest(
 //   val weekIndex: Int,
 //   val viewType: Int,
 //   val studyYear: Int,
@@ -20,7 +20,7 @@ data class LessonEventsRequest(
 )
 
 @Serializable
-data class LessonEvents(
+data class DisciplineEvents(
     val viewRemarkForParentPupil: Boolean? = null,
     val canRequestJustification: Boolean? = null,
     val behaviorGrade: JsonElement? = null,
@@ -28,7 +28,8 @@ data class LessonEvents(
     val canDelete: Boolean? = null,
     val hours: List<EventHour>? = null,
     val eventsTypes: List<EventType>? = null,
-    val diciplineEvents: List<DisciplineEvent>? = null,
+    @SerialName("diciplineEvents")
+    val disciplineEvents: List<DisciplineEvent>,
     val groups: JsonElement? = null,
 )
 

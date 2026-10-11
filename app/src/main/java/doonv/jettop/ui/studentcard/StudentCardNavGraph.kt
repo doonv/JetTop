@@ -23,10 +23,10 @@ fun NavGraphBuilder.studentCardGraph(
                 onNavigate = { route -> navController.navigate(route) },
             )
         }
-        composable<StudentCardRoute.ClassEvents> {
-            val vm: ClassEventsViewModel = viewModel()
+        composable<StudentCardRoute.DisciplineEvents> {
+            val vm: DisciplineEventsViewModel = viewModel()
             LaunchedEffect(Unit) { vm.load() }
-            ClassEventsScreen(
+            DisciplineEventsScreen(
                 modifier = modifier,
                 vm = vm,
                 onBack = { navController.popBackStack() },
@@ -50,7 +50,7 @@ sealed interface StudentCardRoute {
     data object Menu : StudentCardRoute
 
     @Serializable
-    data object ClassEvents : StudentCardRoute
+    data object DisciplineEvents : StudentCardRoute
 
     @Serializable
     data object NonLessonEvents : StudentCardRoute

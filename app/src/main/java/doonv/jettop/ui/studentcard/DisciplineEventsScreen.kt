@@ -43,17 +43,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import doonv.jettop.R
-import doonv.jettop.data.LessonEvents
+import doonv.jettop.data.DisciplineEvent
+import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.ui.components.TitleContentCard
 import doonv.jettop.ui.theme.Symbols
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toJavaLocalDateTime
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ClassEventsScreen(
+fun DisciplineEventsScreen(
     modifier: Modifier = Modifier,
-    vm: ClassEventsViewModel,
+    vm: DisciplineEventsViewModel,
     onBack: () -> Unit,
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -89,11 +92,11 @@ fun ClassEventsScreen(
         floatingActionButton = { EventsScreenFab() }
     ) { innerPadding ->
         when (val s = state) {
-            is ClassEventsUiState.Loading -> Box(
+            is DisciplineEventsUiState.Loading -> Box(
                 Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) { LoadingIndicator() }
 
-            is ClassEventsUiState.Error -> Column(
+            is DisciplineEventsUiState.Error -> Column(
                 Modifier
                     .fillMaxSize()
                     .padding(16.dp),
@@ -117,7 +120,7 @@ fun ClassEventsScreen(
                 }
             }
 
-            is ClassEventsUiState.Success -> ClassEventsSuccess(
+            is DisciplineEventsUiState.Success -> DisciplineEventsSuccess(
                 innerPadding,
                 s.events
             )
@@ -126,14 +129,12 @@ fun ClassEventsScreen(
 }
 
 @Composable
-private fun ClassEventsSuccess(
+private fun DisciplineEventsSuccess(
     innerPadding: PaddingValues,
-    events: LessonEvents,
+    events: DisciplineEvents,
 ) {
-    val formatter =
-        DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", LocalLocale.current.platformLocale)
     val grouped = remember(events) {
-        events.diciplineEvents.orEmpty()
+        events.disciplineEvents
             .sortedByDescending { it.eventDate }
             .groupBy { it.eventDate.date }
             .toList()
@@ -146,69 +147,82 @@ private fun ClassEventsSuccess(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(grouped) { (date, events) ->
-            TitleContentCard(title = date.toJavaLocalDate().format(formatter)) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    events.forEachIndexed { index, event ->
-                        if (index != 0)
-                            HorizontalDivider()
-                        Column {
-                            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                                Row(Modifier.alignByBaseline(), Arrangement.spacedBy(4.dp)) {
-                                    Text(
-                                        event.eventType,
-                                        textDecoration = if (event.justified) TextDecoration.LineThrough else null,
-                                        modifier = Modifier.alignByBaseline(),
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = MaterialTheme.typography.titleMediumEmphasized.copy(
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    )
-                                    if (event.justified) {
-                                        Icon(
-                                            Symbols.Filled.GavelOnly20,
-                                            contentDescription = stringResource(R.string.event_justified),
-                                            tint = MaterialTheme.colorScheme.onSurface,
-                                            modifier = Modifier
-                                                .size(with(LocalDensity.current) { MaterialTheme.typography.titleMediumEmphasized.fontSize.toDp() })
-                                                .alignBy { (it.measuredHeight * 0.8f).toInt() }
-
-                                        )
-                                    }
-                                }
-                                Text(
-                                    event.hourName,
-                                    modifier = Modifier.alignByBaseline(),
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            }
-                            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                                Text(
-                                    event.subjectName,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    event.teacherName.orEmpty(),
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
-                            if (!event.justifiedRemark.isNullOrEmpty()) {
-                                Text(
-                                    stringResource(
-                                        R.string.justification_notes,
-                                        event.justifiedRemark
-                                    ),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            DisciplineEventsCard(date, events)
         }
 
         item {
             Spacer(Modifier.size(1.dp, 800.dp))
+        }
+    }
+}
+
+@Composable
+fun DisciplineEventsCard(
+    date: LocalDate?,
+    events: List<DisciplineEvent>
+) {
+    val formatter =
+        DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", LocalLocale.current.platformLocale)
+    TitleContentCard(title = date?.toJavaLocalDate()?.format(formatter) ?: "Class Events") {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            events.forEachIndexed { index, event ->
+                if (index != 0)
+                    HorizontalDivider()
+                Column {
+                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                        Row(Modifier.alignByBaseline(), Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                event.eventType,
+                                textDecoration = if (event.justified) TextDecoration.LineThrough else null,
+                                modifier = Modifier.alignByBaseline(),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.titleMediumEmphasized.copy(
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                            if (event.justified) {
+                                Icon(
+                                    Symbols.Filled.GavelOnly20,
+                                    contentDescription = stringResource(R.string.event_justified),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier
+                                        .size(with(LocalDensity.current) { MaterialTheme.typography.titleMediumEmphasized.fontSize.toDp() })
+                                        .alignBy { (it.measuredHeight * 0.8f).toInt() }
+
+                                )
+                            }
+                        }
+                        Text(
+                            event.hourName,
+                            modifier = Modifier.alignByBaseline(),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                        Text(
+                            event.subjectName,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            if (date == null)
+                                event.teacherName.orEmpty()
+                            else
+                                event.eventDate.toJavaLocalDateTime().format(formatter),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    if (!event.justifiedRemark.isNullOrEmpty()) {
+                        Text(
+                            stringResource(
+                                R.string.justification_notes,
+                                event.justifiedRemark
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -65,11 +65,17 @@ interface WebtopApi {
         @Header("Cookie") cookie: String
     ): ApiResponse<MessageDetails>
 
+    /**
+     * Gets the discipline events for this year.
+     *
+     * There's also `server/api/dashboard/GetPupilDiciplineEvents` but it seems about the same.
+     * Though more research about how it behaves when there a lot of events is needed.
+     */
     @POST("server/api/PupilCard/GetPupilDiciplineEvents")
-    suspend fun getEvents(
-        @Body body: LessonEventsRequest,
+    suspend fun getDisciplineEvents(
+        @Body body: DisciplineEventsRequest,
         @Header("Cookie") cookie: String
-    ): ApiResponse<LessonEvents>
+    ): ApiResponse<DisciplineEvents>
 }
 
 /**
