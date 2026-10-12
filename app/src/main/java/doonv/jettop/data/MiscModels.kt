@@ -24,7 +24,7 @@ data class MenuCounters(
 )
 
 enum class PupilCardModule(val id: Int) {
-    LESSON_EVENTS(4),
+    DISCIPLINE_EVENTS(4),
     OUT_OF_CLASS_EVENTS(5),
     GRADES(6),
     PERIOD_GRADES(7),
@@ -36,7 +36,7 @@ enum class PupilCardModule(val id: Int) {
     ADJUSTMENTS(13),
     TRACKING_NOTES(14),
     MATRICULATION_ADJUSTMENTS(32),
-    PRIVATE_LESSON_EVENTS(33),
+    PRIVATE_DISCIPLINE_EVENTS(33),
     STUDENT_EVALUATIONS(34),
     GENERAL_DETAILS(38),
     PERSONAL_EDUCATION_PROGRAM(39),

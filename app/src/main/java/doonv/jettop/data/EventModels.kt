@@ -16,7 +16,7 @@ data class DisciplineEventsRequest(
 //   val classCode: Int,
 //   val periodID: Int,
 //   val periodName: String,
-    val moduleID: Int = PupilCardModule.LESSON_EVENTS.id
+    val moduleID: Int = PupilCardModule.DISCIPLINE_EVENTS.id
 )
 
 @Serializable

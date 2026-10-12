@@ -70,8 +70,8 @@ fun StudentCardScreen(
         )
         MenuGrid(
             tiles = listOf(
-                MenuTile(R.string.lesson_events, Symbols.Filled.EventNote32, StudentCardRoute.DisciplineEvents),
-                MenuTile(R.string.non_lesson_events, Symbols.Filled.Campaign32, StudentCardRoute.NonLessonEvents),
+                MenuTile(R.string.discipline_events, Symbols.Filled.EventNote32, StudentCardRoute.DisciplineEvents),
+                MenuTile(R.string.non_discipline_events, Symbols.Filled.Campaign32, StudentCardRoute.NonLessonEvents),
                 MenuTile(R.string.accommodations, Symbols.Filled.Psychology32, StudentCardRoute.Accommodations),
                 MenuTile(R.string.private_lessons, Symbols.Filled.Group32, StudentCardRoute.PrivateLessons),
                 MenuTile(R.string.submission_and_exam_grades, Symbols.Filled.AssignmentTurnedIn32, StudentCardRoute.SubmissionAndExamGrades),
