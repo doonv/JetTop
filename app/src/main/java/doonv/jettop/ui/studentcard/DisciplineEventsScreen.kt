@@ -64,7 +64,7 @@ fun DisciplineEventsScreen(
         modifier,
         topBar = {
             TopAppBar(
-                title = { },
+                title = { Text(stringResource(R.string.discipline_events)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
