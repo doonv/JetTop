@@ -2,9 +2,40 @@ package doonv.jettop.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import doonv.jettop.R
+
+val GoogleSans = FontFamily(
+    Font(
+        R.font.googlesans_lat_he,
+        FontWeight.Normal,
+        FontStyle.Normal,
+        variationSettings = FontVariation.Settings(FontVariation.weight(400))
+    ),
+    Font(
+        R.font.googlesans_lat_he,
+        FontWeight.Medium,
+        FontStyle.Normal,
+        variationSettings = FontVariation.Settings(FontVariation.weight(500))
+    ),
+    Font(
+        R.font.googlesans_lat_he,
+        FontWeight.SemiBold,
+        FontStyle.Normal,
+        variationSettings = FontVariation.Settings(FontVariation.weight(600))
+    ),
+    Font(
+        R.font.googlesans_lat_he,
+        FontWeight.Bold,
+        FontStyle.Normal,
+        variationSettings = FontVariation.Settings(FontVariation.weight(700))
+    ),
+)
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -30,4 +61,24 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
-)
+).withFamily(GoogleSans) // TODO: allow users to turn Google Sans off in settings
+
+fun Typography.withFamily(fontFamily: FontFamily): Typography {
+    return Typography(
+        displayLarge = displayLarge.copy(fontFamily = fontFamily),
+        displayMedium = displayMedium.copy(fontFamily = fontFamily),
+        displaySmall = displaySmall.copy(fontFamily = fontFamily),
+        headlineLarge = headlineLarge.copy(fontFamily = fontFamily),
+        headlineMedium = headlineMedium.copy(fontFamily = fontFamily),
+        headlineSmall = headlineSmall.copy(fontFamily = fontFamily),
+        titleLarge = titleLarge.copy(fontFamily = fontFamily),
+        titleMedium = titleMedium.copy(fontFamily = fontFamily),
+        titleSmall = titleSmall.copy(fontFamily = fontFamily),
+        bodyLarge = bodyLarge.copy(fontFamily = fontFamily),
+        bodyMedium = bodyMedium.copy(fontFamily = fontFamily),
+        bodySmall = bodySmall.copy(fontFamily = fontFamily),
+        labelLarge = labelLarge.copy(fontFamily = fontFamily),
+        labelMedium = labelMedium.copy(fontFamily = fontFamily),
+        labelSmall = labelSmall.copy(fontFamily = fontFamily),
+    )
+}
