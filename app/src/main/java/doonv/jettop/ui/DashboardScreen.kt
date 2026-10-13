@@ -377,7 +377,7 @@ private fun RowScope.LessonCard(
                     fontWeight = FontWeight.Bold,
                     lineHeight = 22.sp,
                     maxLines = 1,
-                    overflow = TextOverflow.Clip,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
                     textDecoration = if (cancelled) TextDecoration.LineThrough else null
                 )
