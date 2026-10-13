@@ -211,10 +211,13 @@ private fun Dashboard(
                     Tab(
                         selected = i == pagerState.currentPage,
                         onClick = { scope.launch { pagerState.animateScrollToPage(i) } },
-                        text = {
+                        // icon is used instead of text because text has a forced padding which cuts
+                        // off weekday names in English
+                        icon = {
                             Text(
                                 text = dayNames[d.dayIndex - 1],
                                 maxLines = 1,
+                                style = MaterialTheme.typography.titleSmall.copy(textAlign = TextAlign.Center),
                                 softWrap = false
                             )
                         }
