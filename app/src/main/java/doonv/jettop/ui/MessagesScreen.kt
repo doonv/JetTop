@@ -258,7 +258,7 @@ fun MessageRow(
                 Text(
                     message.subject ?: stringResource(R.string.message_no_subject),
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleSmall.copy(textDirection = TextDirection.ContentOrRtl),
+                    style = MaterialTheme.typography.bodySmall.copy(textDirection = TextDirection.ContentOrRtl),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = textColor
