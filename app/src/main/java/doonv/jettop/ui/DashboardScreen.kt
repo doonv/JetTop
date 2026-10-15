@@ -18,7 +18,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LoadingIndicator
@@ -57,11 +56,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
-import androidx.lifecycle.viewmodel.compose.viewModel
 import doonv.jettop.R
 import doonv.jettop.data.DaySchedule
+import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.HourData
 import doonv.jettop.data.Lesson
+import doonv.jettop.ui.studentcard.DisciplineEventsCard
 import doonv.jettop.ui.theme.LessonColors
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
@@ -72,18 +72,21 @@ import java.time.LocalDate
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DashboardScreen(
-    modifier: Modifier = Modifier, vm: ScheduleViewModel = viewModel()
+    modifier: Modifier = Modifier,
+    vm: DashboardViewModel,
+    firstName: String,
 ) {
     val state by vm.state.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
+    val refreshing = (state as? DashboardUiState.Success)?.isRefreshing == true
 
     PullToRefreshBox(
-        isRefreshing = state.refreshing(),
+        isRefreshing = refreshing,
         onRefresh = { vm.refresh() },
         state = pullToRefreshState,
         indicator = {
             PullToRefreshDefaults.LoadingIndicator(
-                isRefreshing = state.refreshing(),
+                isRefreshing = refreshing,
                 modifier = Modifier.align(Alignment.TopCenter),
                 state = pullToRefreshState
             )
@@ -95,11 +98,11 @@ fun DashboardScreen(
                 .statusBarsPadding()
         ) {
             when (val s = state) {
-                is ScheduleUiState.Loading -> Box(
+                is DashboardUiState.Loading -> Box(
                     Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) { LoadingIndicator() }
 
-                is ScheduleUiState.Error -> Column(
+                is DashboardUiState.Error -> Column(
                     Modifier
                         .fillMaxSize()
                         .padding(16.dp),
@@ -123,7 +126,12 @@ fun DashboardScreen(
                     }
                 }
 
-                is ScheduleUiState.Success -> Dashboard(s.days, s.firstName, s.lastUpdated)
+                is DashboardUiState.Success -> Dashboard(
+                    s.days,
+                    firstName,
+                    s.lastUpdated,
+                    s.disciplineEvents,
+                )
             }
         }
     }
@@ -133,7 +141,8 @@ fun DashboardScreen(
 private fun Dashboard(
     days: List<DaySchedule>,
     firstName: String,
-    lastUpdated: Long
+    lastUpdated: Long,
+    disciplineEvents: DisciplineEvents,
 ) {
     if (days.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -194,7 +203,7 @@ private fun Dashboard(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(0.dp, 16.dp)
                 )
-                EventsSummaryCard()
+                DashboardDisciplineCard(disciplineEvents)
                 Text(
                     stringResource(R.string.last_updated, rel),
                     fontSize = 10.sp,
@@ -304,51 +313,14 @@ private fun DayHoursList(hours: List<HourData>, colors: Map<String, Color>) {
 }
 
 @Composable
-private fun EventsSummaryCard() {
-    Card(Modifier.fillMaxWidth()) {
-        Text(
-            "אירועים בשיעור",
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(8.dp)
-        )
-        HorizontalDivider()
-        Column(verticalArrangement = Arrangement.spacedBy((-20).dp)) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                Text(
-                    "איחור",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    "123",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                Text(
-                    "אנגלית",
-                    fontSize = 12.sp
-                )
-                Text(
-                    "8:45 - 8:00",
-                    fontSize = 12.sp
-                )
-            }
-        }
+private fun DashboardDisciplineCard(events: DisciplineEvents) {
+    val latest = remember(events) {
+        events.disciplineEvents
+            .sortedByDescending { it.eventDate }
+            .take(3)
+            .toList()
     }
+    DisciplineEventsCard(null, latest)
 }
 
 @Composable

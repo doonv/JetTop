@@ -1,8 +1,6 @@
 package doonv.jettop.ui.studentcard
 
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -14,6 +12,7 @@ fun NavGraphBuilder.studentCardGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     loginData: LoginData,
+    eventsVm: DisciplineEventsViewModel,
 ) {
     navigation<StudentCardGraph>(startDestination = StudentCardRoute.Menu) {
         composable<StudentCardRoute.Menu> {
@@ -24,11 +23,9 @@ fun NavGraphBuilder.studentCardGraph(
             )
         }
         composable<StudentCardRoute.DisciplineEvents> {
-            val vm: DisciplineEventsViewModel = viewModel()
-            LaunchedEffect(Unit) { vm.load() }
             DisciplineEventsScreen(
                 modifier = modifier,
-                vm = vm,
+                vm = eventsVm,
                 onBack = { navController.popBackStack() },
             )
         }

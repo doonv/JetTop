@@ -1,5 +1,6 @@
 package doonv.jettop
 
+import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
@@ -23,13 +23,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -41,17 +45,22 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import doonv.jettop.data.DisciplineEventsRepository
+import doonv.jettop.data.DisciplineFileCache
 import doonv.jettop.data.LoginData
+import doonv.jettop.data.ScheduleFileCache
+import doonv.jettop.data.ScheduleRepository
 import doonv.jettop.ui.AuthState
 import doonv.jettop.ui.AuthViewModel
 import doonv.jettop.ui.DashboardScreen
+import doonv.jettop.ui.DashboardViewModel
 import doonv.jettop.ui.LoginScreen
 import doonv.jettop.ui.MenuCountersViewModel
 import doonv.jettop.ui.MessageDetailsScreen
 import doonv.jettop.ui.MessageDetailsViewModel
 import doonv.jettop.ui.MessagesScreen
 import doonv.jettop.ui.MessagesViewModel
-import doonv.jettop.ui.ScheduleViewModel
+import doonv.jettop.ui.studentcard.DisciplineEventsViewModel
 import doonv.jettop.ui.studentcard.StudentCardGraph
 import doonv.jettop.ui.studentcard.studentCardGraph
 import doonv.jettop.ui.theme.JetTopTheme
@@ -126,8 +135,30 @@ fun HomeScaffold(loginData: LoginData) {
         val modifier = Modifier
             .padding(innerPadding)
             .consumeWindowInsets(innerPadding)
-        val scheduleVm: ScheduleViewModel = viewModel()
         val messagesVm: MessagesViewModel = viewModel()
+        val app = LocalContext.current.applicationContext as Application
+        val scheduleRepo = remember(app) {
+            ScheduleRepository(
+                cache = ScheduleFileCache(
+                    file = app.filesDir.resolve("schedules.json")
+                )
+            )
+        }
+        val disciplineRepo = remember(app) {
+            DisciplineEventsRepository(
+                cache = DisciplineFileCache(
+                    file = app.filesDir.resolve("discipline_events.json")
+                )
+            )
+        }
+        val dashboardFactory = remember(app, scheduleRepo, disciplineRepo) {
+            viewModelFactory {
+                initializer { DashboardViewModel(app, scheduleRepo, disciplineRepo) }
+                initializer { DisciplineEventsViewModel(app, disciplineRepo) }
+            }
+        }
+        val dashboardVm: DashboardViewModel = viewModel(factory = dashboardFactory)
+        val eventsVm: DisciplineEventsViewModel = viewModel(factory = dashboardFactory)
         NavHost(
             navController = navController,
             startDestination = MainRoute,
@@ -138,11 +169,12 @@ fun HomeScaffold(loginData: LoginData) {
             composable<MainRoute> {
                 DashboardScreen(
                     modifier = modifier,
-                    vm = scheduleVm
+                    vm = dashboardVm,
+                    firstName = loginData.firstName,
                 )
             }
             messagesGraph(modifier, messagesVm, countersVm, navController)
-            studentCardGraph(navController, modifier, loginData)
+            studentCardGraph(navController, modifier, loginData, eventsVm)
         }
 
     }

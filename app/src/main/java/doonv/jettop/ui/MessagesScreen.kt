@@ -126,7 +126,10 @@ fun MessagesScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.error
                         )
-                        Text(s.error.localizedMessage ?: s.error.message ?:s.error.toString(), color = MaterialTheme.colorScheme.error)
+                        Text(
+                            s.error.localizedMessage ?: s.error.message ?: s.error.toString(),
+                            color = MaterialTheme.colorScheme.error
+                        )
                         Button(
                             onClick = { lazyPagingItems.retry() },
                             modifier = Modifier.padding(top = 8.dp)
@@ -177,7 +180,8 @@ private fun MessagesList(
                     bottomEnd = if (index == count - 1) rounded.bottomEnd else base.bottomEnd,
                     bottomStart = if (index == count - 1) rounded.bottomStart else base.bottomStart,
                 )
-                val msg = if (message.messageId in locallyRead) message.copy(hasRead = 1) else message
+                val msg =
+                    if (message.messageId in locallyRead) message.copy(hasRead = 1) else message
 
                 MessageRow(
                     msg,
