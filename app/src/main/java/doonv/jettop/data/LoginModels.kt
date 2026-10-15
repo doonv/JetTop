@@ -110,18 +110,18 @@ data class LoginData(
 
 @Serializable
 data class DeviceData(
-    val isMobile: Boolean = false,
-    val isTablet: Boolean = false,
-    val isDesktop: Boolean = true,
-    val getDeviceType: String = "Desktop",
-    val os: String = "Linux",
-    val osVersion: String = "unknown",
-    val browser: String = "Firefox",
-    val browserVersion: String = "155.0",
-    val browserMajorVersion: Int = 155,
-    val screen_resolution: String = "1920 x 1080",
-    val cookies: Boolean = true,
-    val userAgent: String = "Mozilla/5.0 (X11; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0"
+    val isMobile: Boolean? = null,
+    val isTablet: Boolean? = null,
+    val isDesktop: Boolean? = null,
+    val getDeviceType: String? = null,
+    val os: String? = null,
+    val osVersion: String? = null,
+    val browser: String? = null,
+    val browserVersion: String? = null,
+    val browserMajorVersion: Int? = null,
+    val screen_resolution: String? = null,
+    val cookies: Boolean? = null,
+    val userAgent: String? = null,
 )
 
 @Serializable(GenderSerializer::class)

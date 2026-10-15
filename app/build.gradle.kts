@@ -4,6 +4,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val gitRev = providers.exec {
+    commandLine("git", "describe", "--always", "--dirty")
+    isIgnoreExitValue = true
+}.standardOutput.asText.map { it.trim().ifEmpty { "unknown" } }
+
 android {
     namespace = "doonv.jettop"
     compileSdk {
@@ -18,6 +23,8 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "GIT_REV", "\"${gitRev.get()}\"")
     }
 
     buildTypes {

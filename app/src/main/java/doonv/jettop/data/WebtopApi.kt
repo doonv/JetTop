@@ -1,5 +1,7 @@
 package doonv.jettop.data
 
+import android.os.Build
+import doonv.jettop.BuildConfig
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialInfo
 import kotlinx.serialization.json.Json
@@ -108,7 +110,8 @@ object ApiClient {
                 chain.request().newBuilder()
                     .header(
                         "User-Agent",
-                        "Mozilla/5.0 (X11; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0"
+                        "JetTop/${BuildConfig.VERSION_NAME} " +
+                                "(Android ${Build.VERSION.RELEASE}; rev ${BuildConfig.GIT_REV}; +https://github.com/doonv/JetTop)"
                     )
                     .header("Accept", "application/json, text/plain, */*")
                     .header("Accept-Language", "en-US,en;q=0.9")
