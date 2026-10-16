@@ -140,7 +140,6 @@ fun MessagesScreen(
                 else -> MessagesList(
                     lazyPagingItems,
                     vm,
-                    innerPadding,
                     scrollBehavior,
                     onMessageClick
                 )
@@ -153,7 +152,6 @@ fun MessagesScreen(
 private fun MessagesList(
     lazyPagingItems: LazyPagingItems<InboxMessage>,
     vm: MessagesViewModel,
-    innerPadding: PaddingValues,
     scrollBehavior: SearchBarScrollBehavior,
     onMessageClick: (InboxMessage) -> Unit,
 ) {
