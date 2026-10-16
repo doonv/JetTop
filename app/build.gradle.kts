@@ -10,7 +10,7 @@ val gitRev = providers.exec {
 }.standardOutput.asText.map { it.trim().ifEmpty { "unknown" } }
 
 val keystorePath: String? = System.getenv("KEYSTORE_PATH")?.takeIf { it.isNotEmpty() }
-val keystorePassword: String? = System.getenv("KEYSTORE_PASSWORD")
+val keystorePassword: String? = System.getenv("KEY_PASSWORD")
 
 android {
     namespace = "doonv.jettop"
