@@ -28,6 +28,9 @@ import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -95,46 +98,59 @@ fun DisciplineEventsScreen(
         },
         floatingActionButton = { EventsScreenFab() }
     ) { innerPadding ->
-        when (val s = state) {
-            is DisciplineEventsUiState.Loading -> Box(
-                Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) { LoadingIndicator() }
+        val pullToRefreshState = rememberPullToRefreshState()
+        val refreshing = state.refreshing()
 
-            is DisciplineEventsUiState.Error -> Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Column(Modifier.fillMaxWidth(0.8f)) {
-                    Text(
-                        stringResource(R.string.error_message),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Text(s.message, color = MaterialTheme.colorScheme.error)
-                    Button(
-                        onClick = { vm.refresh() },
-                        modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Text(stringResource(R.string.retry))
+        PullToRefreshBox(
+            isRefreshing = refreshing,
+            onRefresh = { vm.refresh() },
+            state = pullToRefreshState,
+            modifier = Modifier.padding(innerPadding),
+            indicator = {
+                PullToRefreshDefaults.LoadingIndicator(
+                    isRefreshing = refreshing,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    state = pullToRefreshState
+                )
+            }
+        ) {
+            when (val s = state) {
+                is DisciplineEventsUiState.Loading -> Box(
+                    Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                ) { LoadingIndicator() }
+
+                is DisciplineEventsUiState.Error -> Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Column(Modifier.fillMaxWidth(0.8f)) {
+                        Text(
+                            stringResource(R.string.error_message),
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(s.message, color = MaterialTheme.colorScheme.error)
+                        Button(
+                            onClick = { vm.refresh() },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text(stringResource(R.string.retry))
+                        }
                     }
                 }
-            }
 
-            is DisciplineEventsUiState.Success -> DisciplineEventsSuccess(
-                innerPadding,
-                s.events
-            )
+                is DisciplineEventsUiState.Success -> DisciplineEventsSuccess(s.events)
+            }
         }
     }
 }
 
 @Composable
 private fun DisciplineEventsSuccess(
-    innerPadding: PaddingValues,
     events: DisciplineEvents,
 ) {
     val grouped = remember(events) {
@@ -143,10 +159,9 @@ private fun DisciplineEventsSuccess(
             .groupBy { it.eventDate.date }
             .toList()
     }
+
     LazyColumn(
-        Modifier
-            .fillMaxSize()
-            .padding(innerPadding),
+        Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
