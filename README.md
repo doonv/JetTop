@@ -11,31 +11,31 @@ what the official app should have been: native, fast, and usable offline.
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: light)" srcset="docs/dashboard_he_light.png">
-    <img src="docs/dashboard_he_dark.png" width="24%" alt="Dashboard screen">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/dashboard_he_dark.png">
+    <img src="docs/dashboard_he_light.png" width="24%" alt="Dashboard screen (Hebrew)">
   </picture>
   <picture>
-    <source media="(prefers-color-scheme: light)" srcset="docs/studentcard_he_light.png">
-    <img src="docs/studentcard_he_dark.png" width="24%" alt="Dashboard screen">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/studentcard_he_dark.png">
+    <img src="docs/studentcard_he_light.png" width="24%" alt="Student card screen (Hebrew)">
   </picture>
   <picture>
-    <source media="(prefers-color-scheme: light)" srcset="docs/events_he_light.png">
-    <img src="docs/events_he_dark.png" width="24%" alt="Discipline events screen">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/events_he_dark.png">
+    <img src="docs/events_he_light.png" width="24%" alt="Discipline events screen (Hebrew)">
   </picture>
 </p>
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: light)" srcset="docs/dashboard_en_light.png">
-    <img src="docs/dashboard_en_dark.png" width="24%" alt="Dashboard screen">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/dashboard_en_dark.png">
+    <img src="docs/dashboard_en_light.png" width="24%" alt="Dashboard screen (English)">
   </picture>
   <picture>
-    <source media="(prefers-color-scheme: light)" srcset="docs/studentcard_en_light.png">
-    <img src="docs/studentcard_en_dark.png" width="24%" alt="Dashboard screen">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/studentcard_en_dark.png">
+    <img src="docs/studentcard_en_light.png" width="24%" alt="Student card screen (English)">
   </picture>
   <picture>
-    <source media="(prefers-color-scheme: light)" srcset="docs/events_en_light.png">
-    <img src="docs/events_en_dark.png" width="24%" alt="Discipline events screen">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/events_en_dark.png">
+    <img src="docs/events_en_light.png" width="24%" alt="Discipline events screen (English)">
   </picture>
 </p>
 
