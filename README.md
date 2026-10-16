@@ -5,8 +5,7 @@
 > See [below](#features) for what *is* implemented.
 
 Built with **Jet**pack Compose and Material 3 Expressive, *JetTop* is a free and open source
-alternative to the [Web
-**Top** Android app](https://play.google.com/store/apps/details?id=com.smartschool.webtop). It's
+alternative to the [Web**Top** Android app](https://play.google.com/store/apps/details?id=com.smartschool.webtop). It's
 what the official app should have been: native, fast, and usable offline.
 
 <p align="center">
