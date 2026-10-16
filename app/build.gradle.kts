@@ -9,6 +9,9 @@ val gitRev = providers.exec {
     isIgnoreExitValue = true
 }.standardOutput.asText.map { it.trim().ifEmpty { "unknown" } }
 
+val keystorePath: String? = System.getenv("KEYSTORE_PATH")?.takeIf { it.isNotEmpty() }
+val keystorePassword: String? = System.getenv("KEYSTORE_PASSWORD")
+
 android {
     namespace = "doonv.jettop"
     compileSdk {
@@ -27,9 +30,21 @@ android {
         buildConfigField("String", "GIT_REV", "\"${gitRev.get()}\"")
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+                storePassword = keystorePassword
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = keystorePassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig =
+                signingConfigs.getByName(if (keystorePath != null) "release" else "debug")
 
             optimization {
                 enable = true
