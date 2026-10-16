@@ -80,9 +80,7 @@ fun MessagesScreen(
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp),
+        modifier = modifier.fillMaxSize(),
         topBar = { MessagesTopBar(scrollBehavior) },
         floatingActionButton = { MessagesScreenFab() }
     ) { innerPadding ->
@@ -163,6 +161,7 @@ private fun MessagesList(
     val locallyRead by vm.locallyRead.collectAsStateWithLifecycle()
 
     LazyColumn(
+        contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) {
