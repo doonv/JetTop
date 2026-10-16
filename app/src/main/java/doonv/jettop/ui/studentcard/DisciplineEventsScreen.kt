@@ -30,16 +30,19 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -164,6 +167,7 @@ fun DisciplineEventsCard(
 ) {
     val formatter =
         DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", LocalLocale.current.platformLocale)
+    val defaultLayoutDirection = LocalLayoutDirection.current
     TitleContentCard(
         title = date?.toJavaLocalDate()?.format(formatter)
             ?: stringResource(R.string.discipline_events)
@@ -183,57 +187,61 @@ fun DisciplineEventsCard(
                     if (index != 0)
                         HorizontalDivider()
                     Column {
-                        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                            Row(Modifier.alignByBaseline(), Arrangement.spacedBy(4.dp)) {
-                                Text(
-                                    event.eventType,
-                                    textDecoration = if (event.justified) TextDecoration.LineThrough else null,
-                                    modifier = Modifier.alignByBaseline(),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.titleMediumEmphasized.copy(
-                                        fontWeight = FontWeight.Bold
+                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                                Row(Modifier.alignByBaseline(), Arrangement.spacedBy(4.dp)) {
+                                    Text(
+                                        event.eventType,
+                                        textDecoration = if (event.justified) TextDecoration.LineThrough else null,
+                                        modifier = Modifier.alignByBaseline(),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleMediumEmphasized.copy(
+                                            fontWeight = FontWeight.Bold
+                                        )
                                     )
-                                )
-                                if (event.justified) {
-                                    Icon(
-                                        Symbols.Filled.GavelOnly20,
-                                        contentDescription = stringResource(R.string.event_justified),
-                                        tint = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier
-                                            .size(with(LocalDensity.current) { MaterialTheme.typography.titleMediumEmphasized.fontSize.toDp() })
-                                            .alignBy { (it.measuredHeight * 0.8f).toInt() }
+                                    if (event.justified) {
+                                        Icon(
+                                            Symbols.Filled.GavelOnly20,
+                                            contentDescription = stringResource(R.string.event_justified),
+                                            tint = MaterialTheme.colorScheme.onSurface,
+                                            modifier = Modifier
+                                                .size(with(LocalDensity.current) { MaterialTheme.typography.titleMediumEmphasized.fontSize.toDp() })
+                                                .alignBy { (it.measuredHeight * 0.8f).toInt() }
 
+                                        )
+                                    }
+                                }
+                                Text(
+                                    event.hourName,
+                                    modifier = Modifier.alignByBaseline(),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                                Text(
+                                    event.subjectName,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    if (date == null)
+                                        event.eventDate.toJavaLocalDateTime().format(formatter)
+                                    else
+                                        event.teacherName.orEmpty(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                            if (!event.justifiedRemark.isNullOrEmpty()) {
+                                CompositionLocalProvider(LocalLayoutDirection provides defaultLayoutDirection) {
+                                    Text(
+                                        stringResource(
+                                            R.string.justification_notes,
+                                            event.justifiedRemark
+                                        ),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
                             }
-                            Text(
-                                event.hourName,
-                                modifier = Modifier.alignByBaseline(),
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        }
-                        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                            Text(
-                                event.subjectName,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                if (date == null)
-                                    event.eventDate.toJavaLocalDateTime().format(formatter)
-                                else
-                                    event.teacherName.orEmpty(),
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                        if (!event.justifiedRemark.isNullOrEmpty()) {
-                            Text(
-                                stringResource(
-                                    R.string.justification_notes,
-                                    event.justifiedRemark
-                                ),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
                         }
                     }
                 }
