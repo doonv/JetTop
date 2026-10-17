@@ -53,7 +53,7 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 val resp = ApiClient.api.login(
                     // They probably don't check the counter
-                    LoginRequest.forLogin(username, password, 0)
+                    LoginRequest.forLogin(username, password, 0, rememberMe = true)
                 )
                 val data = resp.data
                 if (resp.status && data.token.isNotBlank() && data.institutionCode != 0) {
