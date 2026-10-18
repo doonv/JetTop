@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -140,98 +141,105 @@ private fun MessageDetailsSuccess(
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val defaultLayoutDirection = LocalLayoutDirection.current
-    Column(
-        Modifier
-            .verticalScroll(scrollState)
-            .padding(innerPadding)
-            .padding(8.dp),
-        Arrangement.spacedBy(8.dp)
-    ) {
-        val message = messageDetails.messageData
-        Text(
-            message.subject ?: stringResource(R.string.message_no_subject),
-            modifier = Modifier.fillMaxWidth(),
-            style = MaterialTheme.typography.titleLarge.copy(textDirection = TextDirection.ContentOrRtl),
-        )
-        Card(
-            Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+    SelectionContainer {
+        Column(
+            Modifier
+                .verticalScroll(scrollState)
+                .padding(innerPadding)
+                .padding(8.dp),
+            Arrangement.spacedBy(8.dp)
         ) {
-            Column(Modifier.padding(8.dp), Arrangement.spacedBy(16.dp)) {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Column {
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                message.senderFullName
-                                    ?: stringResource(R.string.message_unknown_sender),
-                                style = MaterialTheme.typography.titleMedium,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            CompositionLocalProvider(LocalLayoutDirection provides defaultLayoutDirection) {
+            val message = messageDetails.messageData
+            Text(
+                message.subject ?: stringResource(R.string.message_no_subject),
+                modifier = Modifier.fillMaxWidth(),
+                style = MaterialTheme.typography.titleLarge.copy(textDirection = TextDirection.ContentOrRtl),
+            )
+            Card(
+                Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+            ) {
+                Column(Modifier.padding(8.dp), Arrangement.spacedBy(16.dp)) {
+                    SelectionContainer {
+                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                            Column {
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        message.senderFullName
+                                            ?: stringResource(R.string.message_unknown_sender),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    CompositionLocalProvider(LocalLayoutDirection provides defaultLayoutDirection) {
+                                        Text(
+                                            message.dateLabel(context),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
                                 Text(
-                                    message.dateLabel(context),
-                                    style = MaterialTheme.typography.labelSmall,
+                                    messageDetails.roles.orEmpty(),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
-                        Text(
-                            messageDetails.roles.orEmpty(),
-                            modifier = Modifier.fillMaxWidth(),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
-                }
 
-                val body = remember(message.messageContent) {
-                    val raw = message.messageContent.orEmpty().trim()
-                    runCatching { AnnotatedString.fromHtml(raw) }.getOrElse { AnnotatedString(raw) }
-                }
-                Text(
-                    body,
-                    modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.ContentOrRtl)
-                )
-
-                if (message.hasAttachments) {
-                    HorizontalDivider()
-                }
-
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    message.filesList.forEach { file ->
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(
-                                Symbols.Filled.Download24,
-                                contentDescription = stringResource(R.string.download)
-                            )
-                            Text(
-                                buildAnnotatedString {
-                                    append(file.fileName)
-                                    append(" ")
-                                    withStyle(
-                                        SpanStyle(
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            fontSize = 12.sp
-                                        )
-                                    ) {
-                                        append(file.fileSize.toString())
-                                    }
-                                },
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clickable { vm.downloadAttachment(file) },
-                                style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.ContentOrLtr)
+                    val body = remember(message.messageContent) {
+                        val raw = message.messageContent.orEmpty().trim()
+                        runCatching { AnnotatedString.fromHtml(raw) }.getOrElse {
+                            AnnotatedString(
+                                raw
                             )
                         }
                     }
-                }
+                    Text(
+                        body,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.ContentOrRtl)
+                    )
 
+                    if (message.hasAttachments) {
+                        HorizontalDivider()
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        message.filesList.forEach { file ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Icon(
+                                    Symbols.Filled.Download24,
+                                    contentDescription = stringResource(R.string.download)
+                                )
+                                Text(
+                                    buildAnnotatedString {
+                                        append(file.fileName)
+                                        append(" ")
+                                        withStyle(
+                                            SpanStyle(
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontSize = 12.sp
+                                            )
+                                        ) {
+                                            append(file.fileSize.toString())
+                                        }
+                                    },
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .clickable { vm.downloadAttachment(file) },
+                                    style = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.ContentOrLtr)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
