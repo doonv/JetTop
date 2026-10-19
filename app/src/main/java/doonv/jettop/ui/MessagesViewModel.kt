@@ -16,7 +16,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -28,8 +27,7 @@ class MessagesViewModel(app: Application) : AndroidViewModel(app) {
     private val api: WebtopApi = ApiClient.api
     private val store = app.applicationContext.dataStore
 
-    private val _locallyRead = MutableStateFlow<Set<String>>(emptySet())
-    val locallyRead: StateFlow<Set<String>> = _locallyRead.asStateFlow()
+    val locallyRead: StateFlow<Set<String>> field = MutableStateFlow<Set<String>>(emptySet())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val messages: Flow<PagingData<InboxMessage>> =
@@ -44,5 +42,5 @@ class MessagesViewModel(app: Application) : AndroidViewModel(app) {
                 }.flow
             }.cachedIn(viewModelScope)
 
-    fun markRead(messageId: String) = _locallyRead.update { it + messageId }
+    fun markRead(messageId: String) = locallyRead.update { it + messageId }
 }

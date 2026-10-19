@@ -3,7 +3,6 @@ package doonv.jettop.data
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import java.io.IOException
@@ -20,12 +19,12 @@ class DisciplineEventsRepository(
     private val api: WebtopApi = ApiClient.api,
     val cache: DisciplineFileCache
 ) {
-    private val _events = MutableStateFlow<CachedDisciplineEvents?>(null)
-    val events: StateFlow<CachedDisciplineEvents?> = _events.asStateFlow()
+    val events: StateFlow<CachedDisciplineEvents?> field =
+        MutableStateFlow<CachedDisciplineEvents?>(null)
 
     fun loadBlocking(): CachedDisciplineEvents? {
         val cached = cache.loadBlocking()
-        if (cached != null) _events.value = cached
+        if (cached != null) events.value = cached
         return cached
     }
 
@@ -42,12 +41,12 @@ class DisciplineEventsRepository(
             updatedAt = System.currentTimeMillis()
         )
         cache.save(cached)
-        _events.value = cached
+        events.value = cached
         cached
     }
 
     suspend fun clear() {
         cache.clear()
-        _events.value = null
+        events.value = null
     }
 }

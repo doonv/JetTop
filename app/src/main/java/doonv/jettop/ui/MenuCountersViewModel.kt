@@ -18,14 +18,13 @@ import kotlinx.coroutines.launch
 class MenuCountersViewModel(app: Application) : AndroidViewModel(app) {
     private val store = app.applicationContext.dataStore
 
-    private val _unreadMessages = MutableStateFlow<Int?>(null)
-    val unreadMessages: StateFlow<Int?> = _unreadMessages
+    val unreadMessages: StateFlow<Int?> field = MutableStateFlow<Int?>(null)
 
     init {
         viewModelScope.launch {
             store.data.map { it.login }.distinctUntilChanged().collect { loginData ->
                 if (loginData == null) {
-                    _unreadMessages.value = null
+                    unreadMessages.value = null
                     return@collect
                 }
                 fetch(loginData)
@@ -37,7 +36,7 @@ class MenuCountersViewModel(app: Application) : AndroidViewModel(app) {
         try {
             val resp = ApiClient.api.getMenuCounters(loginData.cookie())
             if (resp.status)
-                _unreadMessages.value = resp.data.unreadMessages
+                unreadMessages.value = resp.data.unreadMessages
         } catch (e: Exception) {
             if (e is CancellationException) throw e
         }
@@ -46,7 +45,7 @@ class MenuCountersViewModel(app: Application) : AndroidViewModel(app) {
     fun refresh() {
         viewModelScope.launch {
             val login = store.data.map { it.login }.first() ?: run {
-                _unreadMessages.value = null
+                unreadMessages.value = null
                 return@launch
             }
             fetch(login)
@@ -57,6 +56,6 @@ class MenuCountersViewModel(app: Application) : AndroidViewModel(app) {
      * Mark a message as read, decrementing the counter
      */
     fun markRead() {
-        _unreadMessages.update { it?.minus(1)?.coerceAtLeast(0) }
+        unreadMessages.update { it?.minus(1)?.coerceAtLeast(0) }
     }
 }

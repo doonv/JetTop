@@ -29,8 +29,8 @@ sealed interface MessageDetailsUiState {
 
 class MessageDetailsViewModel(private val app: Application) : AndroidViewModel(app) {
     private val store = app.applicationContext.dataStore
-    private val _state = MutableStateFlow<MessageDetailsUiState>(MessageDetailsUiState.Loading)
-    val state: StateFlow<MessageDetailsUiState> = _state
+    val state: StateFlow<MessageDetailsUiState> field =
+        MutableStateFlow<MessageDetailsUiState>(MessageDetailsUiState.Loading)
     fun load(messageId: String) {
         viewModelScope.launch {
             try {
@@ -48,12 +48,12 @@ class MessageDetailsViewModel(private val app: Application) : AndroidViewModel(a
                 if (!response.status)
                     throw IOException(response.message ?: "API returned status=false")
 
-                _state.value = MessageDetailsUiState.Success(response.data)
+                state.value = MessageDetailsUiState.Success(response.data)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.e("MessageDetailsViewModel", e.toString())
-                _state.value = MessageDetailsUiState.Error(
+                state.value = MessageDetailsUiState.Error(
                     e.localizedMessage ?: e.message
                     ?: getApplication<Application>().getString(R.string.unknown_error)
                 )

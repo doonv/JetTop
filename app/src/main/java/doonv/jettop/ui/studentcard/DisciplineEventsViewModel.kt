@@ -36,19 +36,19 @@ class DisciplineEventsViewModel(
     private val repository: DisciplineEventsRepository
 ) : AndroidViewModel(app) {
     private val store = app.applicationContext.dataStore
-    private val _state = MutableStateFlow<DisciplineEventsUiState>(DisciplineEventsUiState.Loading)
-    val state: StateFlow<DisciplineEventsUiState> = _state
+    val state: StateFlow<DisciplineEventsUiState> field =
+        MutableStateFlow<DisciplineEventsUiState>(DisciplineEventsUiState.Loading)
 
     init {
         runBlocking {
             repository.loadBlocking()?.let { cached ->
-                _state.value = DisciplineEventsUiState.Success(cached.events)
+                state.value = DisciplineEventsUiState.Success(cached.events)
             }
         }
         viewModelScope.launch {
             repository.events.collect { cached ->
                 if (cached != null)
-                    _state.value = DisciplineEventsUiState.Success(cached.events)
+                    state.value = DisciplineEventsUiState.Success(cached.events)
             }
         }
         viewModelScope.launch {
@@ -56,23 +56,23 @@ class DisciplineEventsViewModel(
                 if (login != null) fetch(login)
                 else {
                     repository.clear()
-                    _state.value = DisciplineEventsUiState.Loading
+                    state.value = DisciplineEventsUiState.Loading
                 }
             }
         }
     }
 
     private suspend fun fetch(login: LoginData) {
-        (_state.value as? DisciplineEventsUiState.Success)?.let {
-            _state.value = it.copy(isRefreshing = true)
+        (state.value as? DisciplineEventsUiState.Success)?.let {
+            state.value = it.copy(isRefreshing = true)
         }
         try {
             val fresh = repository.refresh(login)
-            _state.value = DisciplineEventsUiState.Success(fresh.events)
+            state.value = DisciplineEventsUiState.Success(fresh.events)
         } catch (e: CancellationException) {
             throw e
         } catch (e: IOException) {
-            _state.value = when (val s = _state.value) {
+            state.value = when (val s = state.value) {
                 is DisciplineEventsUiState.Success -> s.copy(isRefreshing = false, isOffline = true)
                 else -> DisciplineEventsUiState.Error(
                     e.localizedMessage ?: e.message
@@ -80,7 +80,7 @@ class DisciplineEventsViewModel(
                 )
             }
         } catch (e: Exception) {
-            _state.value = DisciplineEventsUiState.Error(
+            state.value = DisciplineEventsUiState.Error(
                 e.localizedMessage ?: e.message
                 ?: getApplication<Application>().getString(R.string.unknown_error)
             )
