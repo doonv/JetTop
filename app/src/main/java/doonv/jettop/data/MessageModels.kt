@@ -126,7 +126,7 @@ data class FileSize(
     val sizeType: Int = 0,
     val sizeName: String? = null,
 ) {
-    override fun toString(): String = "$size $sizeName"
+    override fun toString(): String = "${"%.2f".format(size)} $sizeName"
 }
 
 private fun fullName(firstName: String?, lastName: String?): String? =
