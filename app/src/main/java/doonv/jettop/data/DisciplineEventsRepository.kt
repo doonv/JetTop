@@ -17,7 +17,7 @@ data class CachedDisciplineEvents(
 //       fetch on login, so startup issues two identical requests.
 class DisciplineEventsRepository(
     private val api: WebtopApi = ApiClient.api,
-    val cache: DisciplineFileCache
+    val cache: FileCache<CachedDisciplineEvents>
 ) {
     val events: StateFlow<CachedDisciplineEvents?> field =
         MutableStateFlow<CachedDisciplineEvents?>(null)

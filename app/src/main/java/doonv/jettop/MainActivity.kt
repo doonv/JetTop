@@ -45,10 +45,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import doonv.jettop.data.CachedDisciplineEvents
+import doonv.jettop.data.CachedSchedule
 import doonv.jettop.data.DisciplineEventsRepository
-import doonv.jettop.data.DisciplineFileCache
+import doonv.jettop.data.FileCache
 import doonv.jettop.data.LoginData
-import doonv.jettop.data.ScheduleFileCache
 import doonv.jettop.data.ScheduleRepository
 import doonv.jettop.ui.AuthState
 import doonv.jettop.ui.AuthViewModel
@@ -139,15 +140,17 @@ fun HomeScaffold(loginData: LoginData) {
         val app = LocalContext.current.applicationContext as Application
         val scheduleRepo = remember(app) {
             ScheduleRepository(
-                cache = ScheduleFileCache(
-                    file = app.filesDir.resolve("schedules.json")
+                cache = FileCache(
+                    file = app.filesDir.resolve("schedules.json"),
+                    serializer = CachedSchedule.serializer()
                 )
             )
         }
         val disciplineRepo = remember(app) {
             DisciplineEventsRepository(
-                cache = DisciplineFileCache(
-                    file = app.filesDir.resolve("discipline_events.json")
+                cache = FileCache(
+                    file = app.filesDir.resolve("discipline_events.json"),
+                    serializer = CachedDisciplineEvents.serializer()
                 )
             )
         }

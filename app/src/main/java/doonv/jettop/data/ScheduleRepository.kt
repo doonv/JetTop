@@ -14,7 +14,7 @@ data class CachedSchedule(
 
 class ScheduleRepository(
     private val api: WebtopApi = ApiClient.api,
-    public val cache: ScheduleFileCache
+    public val cache: FileCache<CachedSchedule>
 ) {
     suspend fun refresh(login: LoginData): CachedSchedule = withContext(Dispatchers.IO) {
         val cookie = login.cookie()
