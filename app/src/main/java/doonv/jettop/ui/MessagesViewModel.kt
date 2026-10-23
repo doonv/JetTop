@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import doonv.jettop.data.ApiClient
+import doonv.jettop.data.ApiConfig
 import doonv.jettop.data.InboxMessage
 import doonv.jettop.data.MessagesPagingSource
 import doonv.jettop.data.WebtopApi
@@ -33,7 +34,7 @@ class MessagesViewModel(app: Application) : AndroidViewModel(app) {
     val messages: Flow<PagingData<InboxMessage>> =
         store.data.map { it.login }.distinctUntilChanged().flatMapLatest { login ->
                 if (login == null) return@flatMapLatest emptyFlow()
-                Pager(PagingConfig(pageSize = 15, prefetchDistance = 5)) {
+                Pager(PagingConfig(pageSize = ApiConfig.INBOX_PAGE_SIZE, prefetchDistance = 20)) {
                     MessagesPagingSource(api, login.cookie(), 0, "", logout = {
                         viewModelScope.launch {
                             store.updateData { it.copy(login = null) }

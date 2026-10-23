@@ -17,6 +17,7 @@ import retrofit2.http.POST
 object ApiConfig {
     const val BASE_URL = "https://webtopserver.smartschool.co.il/"
     const val TYPE_VIEW = 1
+    const val INBOX_PAGE_SIZE = 30
 }
 
 interface WebtopApi {

@@ -33,7 +33,7 @@ class MessagesPagingSource(
             return LoadResult.Page(
                 data = response.data,
                 prevKey = if (nextPageNumber <= 1) null else nextPageNumber - 1,
-                nextKey = if (response.data.isEmpty()) null else nextPageNumber + 1
+                nextKey = if (response.data.size < ApiConfig.INBOX_PAGE_SIZE) null else nextPageNumber + 1
             )
         } catch (e: CancellationException) {
             throw e
