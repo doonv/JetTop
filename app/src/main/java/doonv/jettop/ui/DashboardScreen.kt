@@ -62,6 +62,8 @@ import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.HourData
 import doonv.jettop.data.Lesson
 import doonv.jettop.ui.studentcard.DisciplineEventsCard
+import doonv.jettop.ui.theme.GoogleSans
+import doonv.jettop.ui.theme.GoogleSansHighlighted
 import doonv.jettop.ui.theme.LessonColors
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
@@ -217,6 +219,7 @@ private fun Dashboard(
             ) {
                 val dayNames = stringArrayResource(R.array.days)
                 days.forEachIndexed { i, d ->
+                    val today = d.dayIndex - 1 == LocalDate.now().dayOfWeek.value % 7
                     Tab(
                         selected = i == pagerState.currentPage,
                         onClick = { scope.launch { pagerState.animateScrollToPage(i) } },
@@ -226,7 +229,11 @@ private fun Dashboard(
                             Text(
                                 text = dayNames[d.dayIndex - 1],
                                 maxLines = 1,
-                                style = MaterialTheme.typography.titleSmall.copy(textAlign = TextAlign.Center),
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = if (today) FontWeight.Bold else FontWeight.Medium,
+                                ),
+                                fontFamily = if (today) GoogleSansHighlighted else GoogleSans,
                                 softWrap = false
                             )
                         }

@@ -10,30 +10,45 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import doonv.jettop.R
 
-val GoogleSans = FontFamily(
+val GoogleSans = googleSansWithGrade(0)
+val GoogleSansHighlighted = googleSansWithGrade(100)
+
+private fun googleSansWithGrade(grade: Int): FontFamily = FontFamily(
     Font(
         R.font.googlesans_lat_he,
         FontWeight.Normal,
         FontStyle.Normal,
-        variationSettings = FontVariation.Settings(FontVariation.weight(400))
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(400),
+            FontVariation.grade(grade)
+        )
     ),
     Font(
         R.font.googlesans_lat_he,
         FontWeight.Medium,
         FontStyle.Normal,
-        variationSettings = FontVariation.Settings(FontVariation.weight(500))
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(500),
+            FontVariation.grade(grade)
+        )
     ),
     Font(
         R.font.googlesans_lat_he,
         FontWeight.SemiBold,
         FontStyle.Normal,
-        variationSettings = FontVariation.Settings(FontVariation.weight(600))
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(600),
+            FontVariation.grade(grade)
+        )
     ),
     Font(
         R.font.googlesans_lat_he,
         FontWeight.Bold,
         FontStyle.Normal,
-        variationSettings = FontVariation.Settings(FontVariation.weight(700))
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(700),
+            FontVariation.grade(grade)
+        )
     ),
 )
 
