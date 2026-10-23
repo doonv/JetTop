@@ -51,6 +51,9 @@ interface WebtopApi {
     /**
      * Gets a list of up to 30 messages from your inbox.
      *
+     * While this request has a search query field, there's also a dedicated search endpoint, from
+     * my research that endpoint only searches in the titles of messages, while this does.
+     *
      * @throws [retrofit2.HttpException] with code 401 on token expiry.
      */
     @POST("server/api/messageBox/GetMessagesInbox")

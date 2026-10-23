@@ -52,4 +52,5 @@
     <string name="event_justified">מוצדק</string>
     <string name="justification_notes">הערות להצדקה: %1$s</string>
     <string name="no_events">אין אירועים</string>
+    <string name="no_results">אין תוצאות עבור %1$s</string>
 </resources>

@@ -52,4 +52,5 @@
     <string name="event_justified">Justified</string>
     <string name="justification_notes">Justification notes: %1$s</string>
     <string name="no_events">No events</string>
+    <string name="no_results">No results found for %1$s</string>
 </resources>

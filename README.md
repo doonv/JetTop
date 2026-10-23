@@ -64,7 +64,7 @@ extract it, and install the extracted APK.
   - [x] Downloads
   - [ ] Folders
   - [ ] Filters
-  - [ ] Search
+  - [x] Search
   - [ ] Multi-select
   - [ ] Compose
 - [x] Student Card

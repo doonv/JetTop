@@ -17,7 +17,7 @@ import androidx.compose.material3.AppBarWithSearch
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExpandedDockedSearchBarWithGap
+import androidx.compose.material3.ExpandedFullScreenContainedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
@@ -37,25 +37,30 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberSearchBarWithGapState
+import androidx.compose.material3.rememberContainedSearchBarState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,7 +74,7 @@ import doonv.jettop.data.InboxMessage
 import doonv.jettop.ui.theme.Symbols
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MessagesScreen(
     modifier: Modifier = Modifier,
@@ -81,7 +86,7 @@ fun MessagesScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = { MessagesTopBar(scrollBehavior) },
+        topBar = { MessagesTopBar(scrollBehavior, vm, onMessageClick) },
         floatingActionButton = { MessagesScreenFab() }
     ) { innerPadding ->
         val lazyPagingItems = vm.messages.collectAsLazyPagingItems()
@@ -140,7 +145,7 @@ fun MessagesScreen(
                 else -> MessagesList(
                     lazyPagingItems,
                     vm,
-                    scrollBehavior,
+                    Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                     onMessageClick
                 )
             }
@@ -152,7 +157,7 @@ fun MessagesScreen(
 private fun MessagesList(
     lazyPagingItems: LazyPagingItems<InboxMessage>,
     vm: MessagesViewModel,
-    scrollBehavior: SearchBarScrollBehavior,
+    modifier: Modifier,
     onMessageClick: (InboxMessage) -> Unit,
 ) {
     val defaultLayoutDirection = LocalLayoutDirection.current
@@ -161,7 +166,7 @@ private fun MessagesList(
     LazyColumn(
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = modifier
     ) {
         items(
             lazyPagingItems.itemCount,
@@ -278,17 +283,21 @@ fun MessageRow(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 private fun MessagesTopBar(
-    scrollBehavior: SearchBarScrollBehavior
+    scrollBehavior: SearchBarScrollBehavior,
+    vm: MessagesViewModel,
+    onMessageClick: (InboxMessage) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val textFieldState = rememberTextFieldState()
-    val searchBarState = rememberSearchBarWithGapState()
+    LaunchedEffect(Unit) {
+        snapshotFlow { textFieldState.text.toString() }
+            .collect { vm.onQueryChange(it) }
+    }
+    val searchBarState = rememberContainedSearchBarState()
     val appBarWithSearchColors = SearchBarDefaults.appBarWithSearchColors(
-        appBarContainerColor = Color.Transparent,
-        scrolledAppBarContainerColor = Color.Transparent,
-        scrolledSearchBarContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        searchBarColors = SearchBarDefaults.containedColors(state = searchBarState)
     )
 
     val inputField = @Composable {
@@ -334,19 +343,75 @@ private fun MessagesTopBar(
             }
         },
     )
-    ExpandedDockedSearchBarWithGap(state = searchBarState, inputField = inputField) {
-//                LazyColumn {
-//                    items(results) { result ->
-//                        ListItem(
-//                            headlineContent = { Text(result.subject ?: "") },
-//                            supportingContent = { Text(result.senderLastName ?: "") },
-//                            modifier = Modifier.clickable {
-//                                textFieldState.setTextAndPlaceCursorAtEnd(result.subject ?: "")
-//                                scope.launch { searchBarState.animateToCollapsed() }
-//                            },
-//                        )
-//                    }
-//                }
-    }
 
+    ExpandedFullScreenContainedSearchBar(
+        state = searchBarState,
+        inputField = inputField,
+        colors = appBarWithSearchColors.searchBarColors
+    ) {
+        val lazyPagingItems = vm.searchMessages.collectAsLazyPagingItems()
+        val query = textFieldState.text
+        val s = lazyPagingItems.loadState.refresh
+        when {
+            query.isBlank() -> {}
+            s is LoadState.Loading && lazyPagingItems.itemCount == 0 -> Box(
+                Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            ) { LoadingIndicator() }
+
+            s is LoadState.Error -> Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Column(Modifier.fillMaxWidth(0.8f)) {
+                    Text(
+                        stringResource(R.string.error_message),
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Text(
+                        s.error.localizedMessage ?: s.error.message ?: s.error.toString(),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Button(
+                        onClick = { lazyPagingItems.retry() },
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        Text(stringResource(R.string.retry))
+                    }
+                }
+            }
+
+            s is LoadState.NotLoading && lazyPagingItems.itemCount == 0 -> {
+                val template = stringResource(R.string.no_results)
+                val parts = template.split($$"%1$s", limit = 2)
+
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        buildAnnotatedString {
+                            append(parts[0])
+                            withStyle(
+                                SpanStyle(fontWeight = FontWeight.Bold)
+                            ) {
+                                append(query)
+                            }
+                            append(parts[1])
+                        }
+                    )
+                }
+            }
+
+            else -> key(query.toString()) {
+                MessagesList(
+                    lazyPagingItems,
+                    vm,
+                    Modifier,
+                    onMessageClick
+                )
+            }
+        }
+    }
 }
