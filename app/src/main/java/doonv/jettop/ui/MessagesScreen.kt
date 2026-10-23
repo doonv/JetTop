@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +72,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import doonv.jettop.R
 import doonv.jettop.data.InboxMessage
+import doonv.jettop.ui.theme.GoogleSansHighlighted
 import doonv.jettop.ui.theme.Symbols
 import kotlinx.coroutines.launch
 
@@ -146,7 +148,8 @@ fun MessagesScreen(
                     lazyPagingItems,
                     vm,
                     Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                    onMessageClick
+                    onMessageClick,
+                    ""
                 )
             }
         }
@@ -159,6 +162,7 @@ private fun MessagesList(
     vm: MessagesViewModel,
     modifier: Modifier,
     onMessageClick: (InboxMessage) -> Unit,
+    highlightQuery: String
 ) {
     val defaultLayoutDirection = LocalLayoutDirection.current
     val locallyRead by vm.locallyRead.collectAsStateWithLifecycle()
@@ -189,7 +193,8 @@ private fun MessagesList(
                     msg,
                     onClick = { onMessageClick(message) },
                     itemShape,
-                    defaultLayoutDirection
+                    defaultLayoutDirection,
+                    highlightQuery
                 )
             }
         }
@@ -223,7 +228,8 @@ fun MessageRow(
     message: InboxMessage,
     onClick: () -> Unit,
     shape: Shape,
-    defaultLayoutDirection: LayoutDirection
+    defaultLayoutDirection: LayoutDirection,
+    highlightQuery: String
 ) {
     val textColor =
         if (message.isRead) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
@@ -261,8 +267,27 @@ fun MessageRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                val subject = message.subject?.let { text ->
+                    buildAnnotatedString {
+                        append(text)
+                        if (highlightQuery.isEmpty()) return@buildAnnotatedString
+
+                        var start = text.indexOf(highlightQuery, ignoreCase = true)
+                        while (start >= 0) {
+                            val end = start + highlightQuery.length
+                            addStyle(
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontFamily = GoogleSansHighlighted
+                                ), start, end
+                            )
+                            start =
+                                text.indexOf(highlightQuery, startIndex = end, ignoreCase = true)
+                        }
+                    }
+                }
                 Text(
-                    message.subject ?: stringResource(R.string.message_no_subject),
+                    subject ?: AnnotatedString(stringResource(R.string.message_no_subject)),
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodySmall.copy(textDirection = TextDirection.ContentOrRtl),
                     maxLines = 1,
@@ -404,13 +429,17 @@ private fun MessagesTopBar(
                 }
             }
 
-            else -> key(query.toString()) {
-                MessagesList(
-                    lazyPagingItems,
-                    vm,
-                    Modifier,
-                    onMessageClick
-                )
+            else -> {
+                val queryString = query.toString()
+                key(queryString) {
+                    MessagesList(
+                        lazyPagingItems,
+                        vm,
+                        Modifier,
+                        onMessageClick,
+                        queryString
+                    )
+                }
             }
         }
     }
