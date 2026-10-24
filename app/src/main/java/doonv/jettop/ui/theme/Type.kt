@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.sp
 import doonv.jettop.R
 
 val GoogleSans = googleSansWithGrade(0)
-val GoogleSansHighlighted = googleSansWithGrade(100)
+val GoogleSansHighlighted = googleSansWithGrade(200)
 
 private fun googleSansWithGrade(grade: Int): FontFamily = FontFamily(
     Font(
