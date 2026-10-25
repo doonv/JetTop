@@ -87,3 +87,4 @@ LLMs were used:
 - To reverse engineer WebTop's obfuscated JavaScript in the places where that was needed such as
   getting the lesson colors to match and some cryptography stuff in the login request.
 - Very simple refactorings, such as renames and converting hardcoded strings to localized ones.
+- To fix some issues in Google Sans's Hebrew glyphs. (see [googlesans-hebrew-fixes](https://github.com/doonv/googlesans-hebrew-fixes))
