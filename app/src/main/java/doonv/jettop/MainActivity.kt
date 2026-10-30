@@ -141,7 +141,7 @@ fun HomeScaffold(loginData: LoginData) {
         val scheduleRepo = remember(app) {
             ScheduleRepository(
                 cache = FileCache(
-                    file = app.filesDir.resolve("schedules.json"),
+                    file = app.cacheDir.resolve("schedules.json"),
                     serializer = CachedSchedule.serializer()
                 )
             )
@@ -149,7 +149,7 @@ fun HomeScaffold(loginData: LoginData) {
         val disciplineRepo = remember(app) {
             DisciplineEventsRepository(
                 cache = FileCache(
-                    file = app.filesDir.resolve("discipline_events.json"),
+                    file = app.cacheDir.resolve("discipline_events.json"),
                     serializer = CachedDisciplineEvents.serializer()
                 )
             )
