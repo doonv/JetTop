@@ -72,6 +72,15 @@ interface WebtopApi {
     ): ApiResponse<MessageDetails>
 
     /**
+     * Gets the available pupil card modules, divisions, and children for a study year.
+     */
+    @POST("server/api/PupilCard/GetSettingsList")
+    suspend fun getPupilCardSettings(
+        @Body body: PupilCardSettingsRequest,
+        @Header("Cookie") cookie: String
+    ): ApiResponse<PupilCardSettings>
+
+    /**
      * Gets the discipline events for this year.
      *
      * There's also `server/api/dashboard/GetPupilDiciplineEvents` but it seems about the same.
