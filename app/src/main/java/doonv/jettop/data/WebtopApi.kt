@@ -110,6 +110,7 @@ object ApiClient {
         coerceInputValues = true
         isLenient = true
         encodeDefaults = true
+        explicitNulls = false
         namingStrategy = JsonNamingStrategy { descriptor, _, serialName ->
             if (descriptor.annotations.any { it is PascalCase })
                 serialName.replaceFirstChar { it.uppercaseChar() }
