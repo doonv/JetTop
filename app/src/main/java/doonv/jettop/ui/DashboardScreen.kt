@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LoadingIndicator
@@ -61,15 +60,16 @@ import doonv.jettop.data.DaySchedule
 import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.HourData
 import doonv.jettop.data.Lesson
+import doonv.jettop.ui.components.UiStateContent
 import doonv.jettop.ui.studentcard.DisciplineEventsCard
 import doonv.jettop.ui.theme.GoogleSans
 import doonv.jettop.ui.theme.GoogleSansHighlighted
 import doonv.jettop.ui.theme.LessonColors
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -80,7 +80,7 @@ fun DashboardScreen(
 ) {
     val state by vm.state.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
-    val refreshing = (state as? DashboardUiState.Success)?.isRefreshing == true
+    val refreshing = (state as? UiState.Success)?.isRefreshing == true
 
     PullToRefreshBox(
         isRefreshing = refreshing,
@@ -99,40 +99,12 @@ fun DashboardScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
         ) {
-            when (val s = state) {
-                is DashboardUiState.Loading -> Box(
-                    Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                ) { LoadingIndicator() }
-
-                is DashboardUiState.Error -> Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Column(Modifier.fillMaxWidth(0.8f)) {
-                        Text(
-                            stringResource(R.string.error_message),
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Text(s.message, color = MaterialTheme.colorScheme.error)
-                        Button(
-                            onClick = { vm.refresh() },
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            Text(stringResource(R.string.retry))
-                        }
-                    }
-                }
-
-                is DashboardUiState.Success -> Dashboard(
-                    s.days,
-                    firstName,
-                    s.lastUpdated,
-                    s.disciplineEvents,
+            UiStateContent(state = state, onRetry = vm::refresh) { data ->
+                Dashboard(
+                    days = data.schedule.data,
+                    firstName = firstName,
+                    lastUpdated = data.schedule.updatedAt,
+                    disciplineEvents = data.disciplineEvents,
                 )
             }
         }

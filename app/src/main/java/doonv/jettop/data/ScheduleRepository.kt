@@ -3,20 +3,13 @@ package doonv.jettop.data
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import java.io.IOException
-
-@Serializable
-data class CachedSchedule(
-    val days: List<DaySchedule>,
-    val updatedAt: Long
-)
 
 class ScheduleRepository(
     private val api: WebtopApi = ApiClient.api,
-    public val cache: FileCache<CachedSchedule>
+    public val cache: FileCache<List<DaySchedule>>
 ) {
-    suspend fun refresh(login: LoginData): CachedSchedule = withContext(Dispatchers.IO) {
+    suspend fun refresh(login: LoginData): Cached<List<DaySchedule>> = withContext(Dispatchers.IO) {
         val cookie = login.cookie()
         val resp = api.getSchedule(
             ScheduleRequest(
@@ -38,7 +31,7 @@ class ScheduleRepository(
         }
         if (isEmpty && !api.checkToken(cookie).data) throw TokenExpiredException()
 
-        val cached = CachedSchedule(days = resp.data, updatedAt = System.currentTimeMillis())
+        val cached = Cached(data = resp.data, updatedAt = System.currentTimeMillis())
         cache.save(cached)
         cached
     }

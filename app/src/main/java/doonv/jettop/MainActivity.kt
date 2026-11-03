@@ -45,8 +45,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import doonv.jettop.data.CachedDisciplineEvents
-import doonv.jettop.data.CachedSchedule
+import doonv.jettop.data.Cached
+import doonv.jettop.data.DaySchedule
+import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.DisciplineEventsRepository
 import doonv.jettop.data.FileCache
 import doonv.jettop.data.LoginData
@@ -67,6 +68,7 @@ import doonv.jettop.ui.studentcard.studentCardGraph
 import doonv.jettop.ui.theme.JetTopTheme
 import doonv.jettop.ui.theme.Symbols
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 
 @Serializable
 data object MainRoute
@@ -142,7 +144,7 @@ fun HomeScaffold(loginData: LoginData) {
             ScheduleRepository(
                 cache = FileCache(
                     file = app.cacheDir.resolve("schedules.json"),
-                    serializer = CachedSchedule.serializer()
+                    serializer = Cached.serializer(ListSerializer(DaySchedule.serializer()))
                 )
             )
         }
@@ -150,7 +152,7 @@ fun HomeScaffold(loginData: LoginData) {
             DisciplineEventsRepository(
                 cache = FileCache(
                     file = app.cacheDir.resolve("discipline_events.json"),
-                    serializer = CachedDisciplineEvents.serializer()
+                    serializer = Cached.serializer(DisciplineEvents.serializer())
                 )
             )
         }

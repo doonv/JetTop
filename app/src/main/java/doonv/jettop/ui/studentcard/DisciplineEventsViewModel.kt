@@ -8,6 +8,10 @@ import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.DisciplineEventsRepository
 import doonv.jettop.data.LoginData
 import doonv.jettop.data.dataStore
+import doonv.jettop.ui.Refreshable
+import doonv.jettop.ui.UiState
+import doonv.jettop.ui.startRefreshing
+import doonv.jettop.ui.withError
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,37 +22,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
 
-sealed interface DisciplineEventsUiState {
-    fun refreshing(): Boolean = this is Success && this.isRefreshing
-
-    data object Loading : DisciplineEventsUiState
-    data class Success(
-        val events: DisciplineEvents,
-        val isRefreshing: Boolean = false,
-        val isOffline: Boolean = false
-    ) : DisciplineEventsUiState
-
-    data class Error(val message: String) : DisciplineEventsUiState
-}
-
 class DisciplineEventsViewModel(
     app: Application,
     private val repository: DisciplineEventsRepository
-) : AndroidViewModel(app) {
+) : AndroidViewModel(app), Refreshable {
     private val store = app.applicationContext.dataStore
-    val state: StateFlow<DisciplineEventsUiState> field =
-        MutableStateFlow<DisciplineEventsUiState>(DisciplineEventsUiState.Loading)
+    val state: StateFlow<UiState<DisciplineEvents>> field =
+        MutableStateFlow<UiState<DisciplineEvents>>(UiState.Loading)
 
     init {
         runBlocking {
             repository.loadBlocking()?.let { cached ->
-                state.value = DisciplineEventsUiState.Success(cached.events)
+                state.value = UiState.Success(cached.data)
             }
         }
         viewModelScope.launch {
             repository.events.collect { cached ->
                 if (cached != null)
-                    state.value = DisciplineEventsUiState.Success(cached.events)
+                    state.value = UiState.Success(cached.data)
             }
         }
         viewModelScope.launch {
@@ -56,38 +47,29 @@ class DisciplineEventsViewModel(
                 if (login != null) fetch(login)
                 else {
                     repository.clear()
-                    state.value = DisciplineEventsUiState.Loading
+                    state.value = UiState.Loading
                 }
             }
         }
     }
 
     private suspend fun fetch(login: LoginData) {
-        (state.value as? DisciplineEventsUiState.Success)?.let {
-            state.value = it.copy(isRefreshing = true)
-        }
+        state.value = state.value.startRefreshing()
         try {
             val fresh = repository.refresh(login)
-            state.value = DisciplineEventsUiState.Success(fresh.events)
+            state.value = UiState.Success(fresh.data)
         } catch (e: CancellationException) {
             throw e
-        } catch (e: IOException) {
-            state.value = when (val s = state.value) {
-                is DisciplineEventsUiState.Success -> s.copy(isRefreshing = false, isOffline = true)
-                else -> DisciplineEventsUiState.Error(
-                    e.localizedMessage ?: e.message
-                    ?: getApplication<Application>().getString(R.string.unknown_error)
-                )
-            }
         } catch (e: Exception) {
-            state.value = DisciplineEventsUiState.Error(
-                e.localizedMessage ?: e.message
-                ?: getApplication<Application>().getString(R.string.unknown_error)
+            state.value = state.value.withError(
+                message = e.localizedMessage ?: e.message
+                    ?: getApplication<Application>().getString(R.string.unknown_error),
+                isOffline = e is IOException,
             )
         }
     }
 
-    fun refresh() {
+    override fun refresh() {
         viewModelScope.launch {
             store.data.map { it.login }.first()?.let { fetch(it) }
         }

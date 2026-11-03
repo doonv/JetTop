@@ -21,18 +21,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-sealed interface MessageDetailsUiState {
-    data object Loading : MessageDetailsUiState
-    data class Success(val message: MessageDetails) : MessageDetailsUiState
-    data class Error(val message: String) : MessageDetailsUiState
-}
-
 class MessageDetailsViewModel(private val app: Application) : AndroidViewModel(app) {
     private val store = app.applicationContext.dataStore
-    val state: StateFlow<MessageDetailsUiState> field =
-        MutableStateFlow<MessageDetailsUiState>(MessageDetailsUiState.Loading)
+    val state: StateFlow<UiState<MessageDetails>> field =
+        MutableStateFlow<UiState<MessageDetails>>(UiState.Loading)
     fun load(messageId: String) {
         viewModelScope.launch {
+            state.value = UiState.Loading
             try {
                 val login = store.data.map { it.login }.first()
                 if (login == null)
@@ -48,12 +43,12 @@ class MessageDetailsViewModel(private val app: Application) : AndroidViewModel(a
                 if (!response.status)
                     throw IOException(response.message ?: "API returned status=false")
 
-                state.value = MessageDetailsUiState.Success(response.data)
+                state.value = UiState.Success(response.data)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 Log.e("MessageDetailsViewModel", e.toString())
-                state.value = MessageDetailsUiState.Error(
+                state.value = UiState.Error(
                     e.localizedMessage ?: e.message
                     ?: getApplication<Application>().getString(R.string.unknown_error)
                 )

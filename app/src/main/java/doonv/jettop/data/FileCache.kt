@@ -9,7 +9,7 @@ import java.io.File
 
 class FileCache<T>(
     private val file: File,
-    private val serializer: KSerializer<T>,
+    private val serializer: KSerializer<Cached<T>>,
     private val json: Json = Json {
         ignoreUnknownKeys = true; isLenient = true
     }
@@ -17,7 +17,7 @@ class FileCache<T>(
     private val atomic = AtomicFile(file);
     private val lock = Any()
 
-    fun loadBlocking(): T? = synchronized(lock) {
+    fun loadBlocking(): Cached<T>? = synchronized(lock) {
         try {
             if (!file.exists()) null else json.decodeFromString(serializer, file.readText())
         } catch (e: Exception) {
@@ -25,7 +25,7 @@ class FileCache<T>(
         }
     }
 
-    suspend fun save(v: T) = withContext(Dispatchers.IO) {
+    suspend fun save(v: Cached<T>) = withContext(Dispatchers.IO) {
         synchronized(lock) {
             val stream = atomic.startWrite()
             try {

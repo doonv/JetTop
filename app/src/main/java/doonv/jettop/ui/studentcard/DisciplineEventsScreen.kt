@@ -1,7 +1,6 @@
 package doonv.jettop.ui.studentcard
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
@@ -47,17 +45,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import doonv.jettop.R
 import doonv.jettop.data.DisciplineEvent
 import doonv.jettop.data.DisciplineEvents
+import doonv.jettop.ui.UiState
 import doonv.jettop.ui.components.TitleContentCard
+import doonv.jettop.ui.components.UiStateContent
 import doonv.jettop.ui.theme.Symbols
+import java.time.format.DateTimeFormatter
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -99,7 +98,7 @@ fun DisciplineEventsScreen(
         floatingActionButton = { EventsScreenFab() }
     ) { innerPadding ->
         val pullToRefreshState = rememberPullToRefreshState()
-        val refreshing = state.refreshing()
+        val refreshing = (state as? UiState.Success)?.isRefreshing == true
 
         PullToRefreshBox(
             isRefreshing = refreshing,
@@ -114,36 +113,8 @@ fun DisciplineEventsScreen(
                 )
             }
         ) {
-            when (val s = state) {
-                is DisciplineEventsUiState.Loading -> Box(
-                    Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                ) { LoadingIndicator() }
-
-                is DisciplineEventsUiState.Error -> Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Column(Modifier.fillMaxWidth(0.8f)) {
-                        Text(
-                            stringResource(R.string.error_message),
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Text(s.message, color = MaterialTheme.colorScheme.error)
-                        Button(
-                            onClick = { vm.refresh() },
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            Text(stringResource(R.string.retry))
-                        }
-                    }
-                }
-
-                is DisciplineEventsUiState.Success -> DisciplineEventsSuccess(s.events)
+            UiStateContent(state = state, onRetry = vm::refresh) { events ->
+                DisciplineEventsSuccess(events)
             }
         }
     }

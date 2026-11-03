@@ -72,6 +72,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import doonv.jettop.R
 import doonv.jettop.data.InboxMessage
+import doonv.jettop.ui.components.UiStateContent
 import doonv.jettop.ui.theme.GoogleSansHighlighted
 import doonv.jettop.ui.theme.Symbols
 import kotlinx.coroutines.launch
@@ -112,39 +113,15 @@ fun MessagesScreen(
                 )
             }
         ) {
-            when (val s = lazyPagingItems.loadState.refresh) {
-                is LoadState.Loading if lazyPagingItems.itemCount == 0 -> Box(
-                    Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                ) { LoadingIndicator() }
-
-                is LoadState.Error -> Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Column(Modifier.fillMaxWidth(0.8f)) {
-                        Text(
-                            stringResource(R.string.error_message),
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Text(
-                            s.error.localizedMessage ?: s.error.message ?: s.error.toString(),
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Button(
-                            onClick = { lazyPagingItems.retry() },
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            Text(stringResource(R.string.retry))
-                        }
-                    }
-                }
-
-                else -> MessagesList(
+            val contentState = when (val refresh = lazyPagingItems.loadState.refresh) {
+                is LoadState.Loading if lazyPagingItems.itemCount == 0 -> UiState.Loading
+                is LoadState.Error -> UiState.Error(
+                    refresh.error.localizedMessage ?: refresh.error.message ?: refresh.error.toString()
+                )
+                else -> UiState.Success(Unit)
+            }
+            UiStateContent(state = contentState, onRetry = lazyPagingItems::retry) {
+                MessagesList(
                     lazyPagingItems,
                     vm,
                     Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

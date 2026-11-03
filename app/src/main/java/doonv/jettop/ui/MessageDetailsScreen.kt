@@ -2,24 +2,19 @@ package doonv.jettop.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import doonv.jettop.R
 import doonv.jettop.data.MessageDetails
+import doonv.jettop.ui.components.UiStateContent
 import doonv.jettop.ui.theme.Symbols
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -94,47 +89,18 @@ fun MessageDetailsScreen(
             )
         }
     ) { innerPadding ->
-        when (val s = state) {
-            is MessageDetailsUiState.Loading -> Box(
-                Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-            ) { LoadingIndicator() }
-
-            is MessageDetailsUiState.Error -> Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Column(Modifier.fillMaxWidth(0.8f)) {
-                    Text(
-                        stringResource(R.string.error_message),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Text(s.message, color = MaterialTheme.colorScheme.error)
-                    Button(
-                        onClick = { vm.load(messageId) },
-                        modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Text(stringResource(R.string.retry))
-                    }
-                }
-            }
-
-            is MessageDetailsUiState.Success -> MessageDetailsSuccess(
-                innerPadding,
-                s.message,
-                vm
-            )
+        UiStateContent(
+            state = state,
+            onRetry = { vm.load(messageId) },
+            modifier = Modifier.padding(innerPadding),
+        ) { message ->
+            MessageDetailsSuccess(message, vm)
         }
     }
 }
 
 @Composable
 private fun MessageDetailsSuccess(
-    innerPadding: PaddingValues,
     messageDetails: MessageDetails,
     vm: MessageDetailsViewModel
 ) {
@@ -145,7 +111,6 @@ private fun MessageDetailsSuccess(
         Column(
             Modifier
                 .verticalScroll(scrollState)
-                .padding(innerPadding)
                 .padding(8.dp),
             Arrangement.spacedBy(8.dp)
         ) {
