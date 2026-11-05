@@ -34,9 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberContainedSearchBarState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
@@ -72,6 +69,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import doonv.jettop.R
 import doonv.jettop.data.InboxMessage
+import doonv.jettop.ui.components.ExpressivePullToRefreshBox
 import doonv.jettop.ui.components.UiStateContent
 import doonv.jettop.ui.theme.GoogleSansHighlighted
 import doonv.jettop.ui.theme.Symbols
@@ -93,25 +91,16 @@ fun MessagesScreen(
         floatingActionButton = { MessagesScreenFab() }
     ) { innerPadding ->
         val lazyPagingItems = vm.messages.collectAsLazyPagingItems()
-        val pullToRefreshState = rememberPullToRefreshState()
         val isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading &&
                 lazyPagingItems.itemCount > 0
 
-        PullToRefreshBox(
+        ExpressivePullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = {
                 lazyPagingItems.refresh()
                 onRefresh()
             },
-            state = pullToRefreshState,
             modifier = Modifier.padding(innerPadding),
-            indicator = {
-                PullToRefreshDefaults.LoadingIndicator(
-                    isRefreshing = isRefreshing,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    state = pullToRefreshState
-                )
-            }
         ) {
             val contentState = when (val refresh = lazyPagingItems.loadState.refresh) {
                 is LoadState.Loading if lazyPagingItems.itemCount == 0 -> UiState.Loading

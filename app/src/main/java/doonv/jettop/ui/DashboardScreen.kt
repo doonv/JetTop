@@ -24,9 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +57,7 @@ import doonv.jettop.data.DaySchedule
 import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.HourData
 import doonv.jettop.data.Lesson
+import doonv.jettop.ui.components.ExpressivePullToRefreshBox
 import doonv.jettop.ui.components.UiStateContent
 import doonv.jettop.ui.studentcard.DisciplineEventsCard
 import doonv.jettop.ui.theme.GoogleSans
@@ -79,20 +77,11 @@ fun DashboardScreen(
     firstName: String,
 ) {
     val state by vm.state.collectAsState()
-    val pullToRefreshState = rememberPullToRefreshState()
     val refreshing = (state as? UiState.Success)?.isRefreshing == true
 
-    PullToRefreshBox(
+    ExpressivePullToRefreshBox(
         isRefreshing = refreshing,
         onRefresh = { vm.refresh() },
-        state = pullToRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                isRefreshing = refreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-                state = pullToRefreshState
-            )
-        }
     ) {
         Column(
             modifier = modifier

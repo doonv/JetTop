@@ -26,15 +26,11 @@ import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -50,6 +46,7 @@ import doonv.jettop.R
 import doonv.jettop.data.DisciplineEvent
 import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.ui.UiState
+import doonv.jettop.ui.components.ExpressivePullToRefreshBox
 import doonv.jettop.ui.components.TitleContentCard
 import doonv.jettop.ui.components.UiStateContent
 import doonv.jettop.ui.theme.Symbols
@@ -97,21 +94,12 @@ fun DisciplineEventsScreen(
         },
         floatingActionButton = { EventsScreenFab() }
     ) { innerPadding ->
-        val pullToRefreshState = rememberPullToRefreshState()
         val refreshing = (state as? UiState.Success)?.isRefreshing == true
 
-        PullToRefreshBox(
+        ExpressivePullToRefreshBox(
             isRefreshing = refreshing,
             onRefresh = { vm.refresh() },
-            state = pullToRefreshState,
             modifier = Modifier.padding(innerPadding),
-            indicator = {
-                PullToRefreshDefaults.LoadingIndicator(
-                    isRefreshing = refreshing,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    state = pullToRefreshState
-                )
-            }
         ) {
             UiStateContent(state = state, onRetry = vm::refresh) { events ->
                 DisciplineEventsSuccess(events)
