@@ -66,12 +66,12 @@ data class DisciplineEvent(
     val eventDate: LocalDateTime,
     val allowJustification: Boolean? = null,
     val enableJustified: Boolean? = null,
-    val isJustified: Boolean? = null,
+    val isJustified: Boolean,
     val isRequestJustification: Boolean? = null,
     val justifiedReason: String? = null,
     val justificationStatus: Boolean? = null,
     @SerialName("justificationID") val justificationId: Int? = null,
-    val notJustified: Boolean, // ????
+    val notJustified: Boolean? = null, // ????
     val subjectName: String,
     val subjectCode: Int? = null,
     val subjectLevel: String? = null,
@@ -86,6 +86,4 @@ data class DisciplineEvent(
     val lessonNums: Int? = null,
     val autoJustifyInEvents: Boolean? = null,
     val idType: Int? = null,
-) {
-    val justified: Boolean get() = !notJustified
-}
+)

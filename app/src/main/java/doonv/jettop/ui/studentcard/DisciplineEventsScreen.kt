@@ -158,7 +158,7 @@ fun DisciplineEventsCard(
         title = date?.toJavaLocalDate()?.format(formatter)
             ?: stringResource(R.string.discipline_events)
     ) {
-        if (events.isEmpty())
+        if (events.isEmpty()) {
             Text(
                 stringResource(R.string.no_events),
                 textAlign = TextAlign.Center,
@@ -167,7 +167,7 @@ fun DisciplineEventsCard(
                     .padding(4.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        else
+        } else {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 events.forEachIndexed { index, event ->
                     if (index != 0)
@@ -178,14 +178,14 @@ fun DisciplineEventsCard(
                                 Row(Modifier.alignByBaseline(), Arrangement.spacedBy(4.dp)) {
                                     Text(
                                         event.eventType,
-                                        textDecoration = if (event.justified) TextDecoration.LineThrough else null,
+                                        textDecoration = if (event.isJustified) TextDecoration.LineThrough else null,
                                         modifier = Modifier.alignByBaseline(),
                                         color = MaterialTheme.colorScheme.onSurface,
                                         style = MaterialTheme.typography.titleMediumEmphasized.copy(
                                             fontWeight = FontWeight.Bold
                                         )
                                     )
-                                    if (event.justified) {
+                                    if (event.isJustified) {
                                         Icon(
                                             Symbols.Filled.GavelOnly20,
                                             contentDescription = stringResource(R.string.event_justified),
@@ -232,6 +232,7 @@ fun DisciplineEventsCard(
                     }
                 }
             }
+        }
     }
 }
 
