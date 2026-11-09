@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
@@ -44,6 +45,24 @@ fun <T> UiStateContent(
         }
     }
 }
+
+fun <T> LazyListScope.uiStateContent(
+    state: UiState<T>,
+    onRetry: () -> Unit,
+    content: LazyListScope.(T) -> Unit,
+) {
+    when (state) {
+        is UiState.Success -> content(state.data)
+        else -> item {
+            UiStateContent(
+                state = state,
+                onRetry = onRetry,
+                content = {},
+            )
+        }
+    }
+}
+
 
 @Composable
 private fun RequestError(

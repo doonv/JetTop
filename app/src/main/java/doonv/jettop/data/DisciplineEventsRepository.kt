@@ -6,8 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
-// TODO: dedupe discipline fetches. The dashboard and student-card ViewModels both
-//       fetch on login, so startup issues two identical requests.
 class DisciplineEventsRepository(
     private val api: WebtopApi = ApiClient.api,
     val cache: FileCache<DisciplineEvents>
