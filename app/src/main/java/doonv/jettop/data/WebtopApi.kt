@@ -91,6 +91,12 @@ interface WebtopApi {
         @Body body: DisciplineEventsRequest,
         @Header("Cookie") cookie: String
     ): ApiResponse<DisciplineEvents>
+
+    @POST("server/api/PupilCard/GetPupilGrades")
+    suspend fun getGrades(
+        @Body body: GradesRequest,
+        @Header("Cookie") cookie: String
+    ): ApiResponse<List<Grade>>
 }
 
 /**
