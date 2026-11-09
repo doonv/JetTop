@@ -3,16 +3,14 @@ package doonv.jettop.ui.studentcard
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import doonv.jettop.R
 import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.DisciplineEventsRepository
 import doonv.jettop.data.LoginData
 import doonv.jettop.data.dataStore
 import doonv.jettop.ui.Refreshable
 import doonv.jettop.ui.UiState
+import doonv.jettop.ui.load
 import doonv.jettop.ui.startRefreshing
-import doonv.jettop.ui.withError
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -20,7 +18,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.IOException
 
 class DisciplineEventsViewModel(
     app: Application,
@@ -28,7 +25,7 @@ class DisciplineEventsViewModel(
 ) : AndroidViewModel(app), Refreshable {
     private val store = app.applicationContext.dataStore
     val state: StateFlow<UiState<DisciplineEvents>> field =
-        MutableStateFlow<UiState<DisciplineEvents>>(UiState.Loading)
+    MutableStateFlow<UiState<DisciplineEvents>>(UiState.Loading)
 
     init {
         runBlocking {
@@ -55,17 +52,8 @@ class DisciplineEventsViewModel(
 
     private suspend fun fetch(login: LoginData) {
         state.value = state.value.startRefreshing()
-        try {
-            val fresh = repository.refresh(login)
-            state.value = UiState.Success(fresh.data)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            state.value = state.value.withError(
-                message = e.localizedMessage ?: e.message
-                    ?: getApplication<Application>().getString(R.string.unknown_error),
-                isOffline = e is IOException,
-            )
+        state.value = state.value.load {
+            repository.refresh(login).data
         }
     }
 

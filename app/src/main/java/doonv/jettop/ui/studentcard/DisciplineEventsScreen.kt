@@ -94,10 +94,9 @@ fun DisciplineEventsScreen(
         },
         floatingActionButton = { EventsScreenFab() }
     ) { innerPadding ->
-        val refreshing = (state as? UiState.Success)?.isRefreshing == true
 
         ExpressivePullToRefreshBox(
-            isRefreshing = refreshing,
+            isRefreshing = state.isRefreshing,
             onRefresh = { vm.refresh() },
             modifier = Modifier.padding(innerPadding),
         ) {

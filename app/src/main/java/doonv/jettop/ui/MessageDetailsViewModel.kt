@@ -7,13 +7,11 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import doonv.jettop.R
 import doonv.jettop.data.ApiClient
 import doonv.jettop.data.AttachedFile
 import doonv.jettop.data.MessageDetails
 import doonv.jettop.data.MessageDetailsRequest
 import doonv.jettop.data.dataStore
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -28,10 +26,10 @@ class MessageDetailsViewModel(private val app: Application) : AndroidViewModel(a
     fun load(messageId: String) {
         viewModelScope.launch {
             state.value = UiState.Loading
-            try {
-                val login = store.data.map { it.login }.first()
-                if (login == null)
-                    return@launch // probably unreachable
+            state.value = state.value.load {
+                val login = checkNotNull(store.data.map { it.login }.first()) {
+                    "Login required to load a message"
+                }
                 val response = ApiClient.api.getMessage(
                     MessageDetailsRequest(
                         filterId = 0,
@@ -43,15 +41,7 @@ class MessageDetailsViewModel(private val app: Application) : AndroidViewModel(a
                 if (!response.status)
                     throw IOException(response.message ?: "API returned status=false")
 
-                state.value = UiState.Success(response.data)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e("MessageDetailsViewModel", e.toString())
-                state.value = UiState.Error(
-                    e.localizedMessage ?: e.message
-                    ?: getApplication<Application>().getString(R.string.unknown_error)
-                )
+                response.data
             }
         }
     }

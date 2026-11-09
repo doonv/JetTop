@@ -104,9 +104,7 @@ fun MessagesScreen(
         ) {
             val contentState = when (val refresh = lazyPagingItems.loadState.refresh) {
                 is LoadState.Loading if lazyPagingItems.itemCount == 0 -> UiState.Loading
-                is LoadState.Error -> UiState.Error(
-                    refresh.error.localizedMessage ?: refresh.error.message ?: refresh.error.toString()
-                )
+                is LoadState.Error -> UiState.Error(refresh.error)
                 else -> UiState.Success(Unit)
             }
             UiStateContent(state = contentState, onRetry = lazyPagingItems::retry) {

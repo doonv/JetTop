@@ -1,10 +1,8 @@
 package doonv.jettop.ui
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import doonv.jettop.R
 import doonv.jettop.data.Cached
 import doonv.jettop.data.DaySchedule
 import doonv.jettop.data.DisciplineEvents
@@ -13,7 +11,6 @@ import doonv.jettop.data.LoginData
 import doonv.jettop.data.ScheduleRepository
 import doonv.jettop.data.TokenExpiredException
 import doonv.jettop.data.dataStore
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,18 +22,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.IOException
 
 data class DashboardData(
     val schedule: Cached<List<DaySchedule>>,
     val disciplineEvents: DisciplineEvents,
 )
-
-private sealed interface LoadState<out T> {
-    data object Loading : LoadState<Nothing>
-    data class Loaded<T>(val value: T) : LoadState<T>
-    data class Failed(val message: String) : LoadState<Nothing>
-}
 
 class DashboardViewModel(
     app: Application,
@@ -45,8 +35,8 @@ class DashboardViewModel(
 ) : AndroidViewModel(app), Refreshable {
     private val store = app.applicationContext.dataStore
 
-    private val scheduleState = MutableStateFlow<LoadState<Cached<List<DaySchedule>>>>(LoadState.Loading)
-    private val disciplineState = MutableStateFlow<LoadState<DisciplineEvents>>(LoadState.Loading)
+    private val scheduleState = MutableStateFlow<UiState<Cached<List<DaySchedule>>>>(UiState.Loading)
+    private val disciplineState = MutableStateFlow<UiState<DisciplineEvents>>(UiState.Loading)
     private val refreshing = MutableStateFlow(false)
 
     init {
@@ -54,22 +44,22 @@ class DashboardViewModel(
             val login = store.data.map { it.login }.first()
             val cachedSchedule = scheduleRepository.cache.loadBlocking()
             if (login != null && cachedSchedule != null)
-                scheduleState.value = LoadState.Loaded(cachedSchedule)
+                scheduleState.value = UiState.Success(cachedSchedule)
             disciplineRepository.loadBlocking()?.let { cached ->
-                disciplineState.value = LoadState.Loaded(cached.data)
+                disciplineState.value = UiState.Success(cached.data)
             }
         }
         viewModelScope.launch {
             disciplineRepository.events.collect { cached ->
                 if (cached != null)
-                    disciplineState.value = LoadState.Loaded(cached.data)
+                    disciplineState.value = UiState.Success(cached.data)
             }
         }
         viewModelScope.launch {
             store.data.map { it.login }.distinctUntilChanged().collect { login ->
                 if (login == null) {
                     disciplineRepository.clear()
-                    disciplineState.value = LoadState.Loading
+                    disciplineState.value = UiState.Loading
                 } else {
                     reload(login)
                 }
@@ -87,16 +77,16 @@ class DashboardViewModel(
         )
 
     private fun reduce(
-        schedule: LoadState<Cached<List<DaySchedule>>>,
-        discipline: LoadState<DisciplineEvents>,
+        schedule: UiState<Cached<List<DaySchedule>>>,
+        discipline: UiState<DisciplineEvents>,
         refreshing: Boolean,
     ): UiState<DashboardData> = when {
-        schedule is LoadState.Failed -> UiState.Error(schedule.message)
-        discipline is LoadState.Failed -> UiState.Error(discipline.message)
-        schedule is LoadState.Loaded && discipline is LoadState.Loaded -> UiState.Success(
+        schedule is UiState.Error -> schedule
+        discipline is UiState.Error -> discipline
+        schedule is UiState.Success && discipline is UiState.Success -> UiState.Success(
             data = DashboardData(
-                schedule = schedule.value,
-                disciplineEvents = discipline.value,
+                schedule = schedule.data,
+                disciplineEvents = discipline.data,
             ),
             isRefreshing = refreshing,
         )
@@ -105,42 +95,19 @@ class DashboardViewModel(
     }
 
     private suspend fun fetchSchedule(login: LoginData) {
-        try {
-            val fresh = scheduleRepository.refresh(login)
-            scheduleState.value = LoadState.Loaded(fresh)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: TokenExpiredException) {
-            scheduleRepository.cache.clear()
+        val result = scheduleState.value.load {
+            scheduleRepository.refresh(login)
+        }
+        if (result is UiState.Error && result.error is TokenExpiredException) {
             logout()
-        } catch (e: IOException) {
-            if (scheduleState.value !is LoadState.Loaded)
-                scheduleState.value = LoadState.Failed("You're offline.")
-        } catch (e: Exception) {
-            scheduleState.value =
-                LoadState.Failed(e.localizedMessage ?: e.message ?: "Unknown error")
+        } else {
+            scheduleState.value = result
         }
     }
 
     private suspend fun fetchDiscipline(login: LoginData) {
-        try {
-            val fresh = disciplineRepository.refresh(login)
-            disciplineState.value = LoadState.Loaded(fresh.data)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: IOException) {
-            Log.e("DashboardViewModel", e.toString())
-            if (disciplineState.value !is LoadState.Loaded)
-                disciplineState.value = LoadState.Failed(
-                    e.localizedMessage ?: e.message
-                    ?: getApplication<Application>().getString(R.string.unknown_error)
-                )
-        } catch (e: Exception) {
-            Log.e("DashboardViewModel", e.toString())
-            disciplineState.value = LoadState.Failed(
-                e.localizedMessage ?: e.message
-                ?: getApplication<Application>().getString(R.string.unknown_error)
-            )
+        disciplineState.value = disciplineState.value.load {
+            disciplineRepository.refresh(login).data
         }
     }
 
@@ -164,7 +131,7 @@ class DashboardViewModel(
 
     private fun logout() {
         viewModelScope.launch {
-            scheduleState.value = LoadState.Loading
+            scheduleState.value = UiState.Loading
             scheduleRepository.cache.clear()
             store.updateData { it.copy(login = null) }
         }
