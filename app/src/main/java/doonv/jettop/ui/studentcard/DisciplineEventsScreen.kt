@@ -17,7 +17,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
@@ -34,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,8 +47,8 @@ import doonv.jettop.ui.UiState
 import doonv.jettop.ui.components.ExpressivePullToRefreshBox
 import doonv.jettop.ui.components.TitleContentCard
 import doonv.jettop.ui.components.UiStateContent
+import doonv.jettop.ui.rememberFullDateFormatter
 import doonv.jettop.ui.theme.Symbols
-import java.time.format.DateTimeFormatter
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
@@ -94,7 +92,6 @@ fun DisciplineEventsScreen(
         },
         floatingActionButton = { EventsScreenFab() }
     ) { innerPadding ->
-
         ExpressivePullToRefreshBox(
             isRefreshing = state.isRefreshing,
             onRefresh = { vm.refresh() },
@@ -138,8 +135,7 @@ fun DisciplineEventsCard(
     date: LocalDate?,
     events: List<DisciplineEvent>
 ) {
-    val formatter =
-        DateTimeFormatter.ofPattern("EEEE, dd/MM/yyyy", LocalLocale.current.platformLocale)
+    val formatter = rememberFullDateFormatter()
     val defaultLayoutDirection = LocalLayoutDirection.current
     TitleContentCard(
         title = date?.toJavaLocalDate()?.format(formatter)
