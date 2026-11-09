@@ -77,10 +77,9 @@ fun DashboardScreen(
     firstName: String,
 ) {
     val state by vm.state.collectAsState()
-    val refreshing = (state as? UiState.Success)?.isRefreshing == true
 
     ExpressivePullToRefreshBox(
-        isRefreshing = refreshing,
+        isRefreshing = state.isRefreshing,
         onRefresh = { vm.refresh() },
     ) {
         Column(

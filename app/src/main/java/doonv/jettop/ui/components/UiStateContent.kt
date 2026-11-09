@@ -31,18 +31,12 @@ fun <T> UiStateContent(
         when (state) {
             UiState.Loading -> LoadingIndicator()
             is UiState.Error -> RequestError(
-                message = state.message,
+                message = state.error.localizedMessage
+                    ?: stringResource(R.string.unknown_error),
                 onRetry = onRetry,
                 modifier = Modifier.fillMaxWidth(0.8f).padding(16.dp),
             )
             is UiState.Success -> Column(Modifier.fillMaxSize()) {
-                state.refreshError?.let { error ->
-                    RequestError(
-                        message = error.message,
-                        onRetry = onRetry,
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    )
-                }
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     content(state.data)
                 }
