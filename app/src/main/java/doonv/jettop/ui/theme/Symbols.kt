@@ -891,6 +891,39 @@ object Symbols {
     }
 
     object Outlined {
+        val Check20: ImageVector by lazy {
+            ImageVector.Builder(
+                name = "check",
+                defaultWidth = 20.dp,
+                defaultHeight = 20.dp,
+                viewportWidth = 20f,
+                viewportHeight = 20f,
+            )
+                .apply {
+                    path(
+                        fill = SolidColor(Color.Black),
+                        fillAlpha = 1f,
+                        stroke = null,
+                        strokeAlpha = 1f,
+                        strokeLineWidth = 1f,
+                        strokeLineCap = StrokeCap.Butt,
+                        strokeLineJoin = StrokeJoin.Bevel,
+                        strokeLineMiter = 1f,
+                        pathFillType = PathFillType.NonZero,
+                    ) {
+                        moveTo(8.1f, 14.44f)
+                        lineTo(4.06f, 10.42f)
+                        lineTo(5.13f, 9.33f)
+                        lineTo(8.1f, 12.31f)
+                        lineTo(14.88f, 5.56f)
+                        lineToRelative(1.06f, 1.06f)
+                        lineTo(8.1f, 14.44f)
+                        close()
+                    }
+                }
+                .build()
+        }
+
         val Home24: ImageVector by lazy {
             ImageVector.Builder(
                 name = "home",

@@ -50,7 +50,11 @@ import doonv.jettop.data.DaySchedule
 import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.DisciplineEventsRepository
 import doonv.jettop.data.FileCache
+import doonv.jettop.data.Grade
 import doonv.jettop.data.LoginData
+import doonv.jettop.data.OngoingGradesRepository
+import doonv.jettop.data.PupilCardSettings
+import doonv.jettop.data.PupilCardSettingsRepository
 import doonv.jettop.data.ScheduleRepository
 import doonv.jettop.ui.AuthState
 import doonv.jettop.ui.AuthViewModel
@@ -63,12 +67,16 @@ import doonv.jettop.ui.MessageDetailsViewModel
 import doonv.jettop.ui.MessagesScreen
 import doonv.jettop.ui.MessagesViewModel
 import doonv.jettop.ui.studentcard.DisciplineEventsViewModel
+import doonv.jettop.ui.studentcard.OngoingGradesViewModel
+import doonv.jettop.ui.studentcard.PupilCardSettingsViewModel
 import doonv.jettop.ui.studentcard.StudentCardGraph
 import doonv.jettop.ui.studentcard.studentCardGraph
 import doonv.jettop.ui.theme.JetTopTheme
 import doonv.jettop.ui.theme.Symbols
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 
 @Serializable
 data object MainRoute
@@ -156,14 +164,45 @@ fun HomeScaffold(loginData: LoginData) {
                 )
             )
         }
-        val dashboardFactory = remember(app, scheduleRepo, disciplineRepo) {
+        val ongoingGradesRepo = remember(app) {
+            OngoingGradesRepository(
+                cache = FileCache(
+                    file = app.cacheDir.resolve("ongoing_grades.json"),
+                    serializer = Cached.serializer(
+                        MapSerializer(
+                            Int.serializer(),
+                            MapSerializer(Int.serializer(), ListSerializer(Grade.serializer()))
+                        )
+                    )
+                )
+            )
+        }
+        val pupilCardSettingsRepo = remember(app) {
+            PupilCardSettingsRepository(
+                cache = FileCache(
+                    file = app.cacheDir.resolve("pupil_card_settings.json"),
+                    serializer = Cached.serializer(PupilCardSettings.serializer())
+                )
+            )
+        }
+        val vmFactory = remember(app, scheduleRepo, disciplineRepo, pupilCardSettingsRepo) {
             viewModelFactory {
                 initializer { DashboardViewModel(app, scheduleRepo) }
                 initializer { DisciplineEventsViewModel(app, disciplineRepo) }
+                initializer { PupilCardSettingsViewModel(app, pupilCardSettingsRepo) }
+                initializer {
+                    OngoingGradesViewModel(
+                        app,
+                        ongoingGradesRepo,
+                        pupilCardSettingsRepo
+                    )
+                }
             }
         }
-        val dashboardVm: DashboardViewModel = viewModel(factory = dashboardFactory)
-        val eventsVm: DisciplineEventsViewModel = viewModel(factory = dashboardFactory)
+        val dashboardVm: DashboardViewModel = viewModel(factory = vmFactory)
+        val eventsVm: DisciplineEventsViewModel = viewModel(factory = vmFactory)
+        val pupilCardSettingsVm: PupilCardSettingsViewModel = viewModel(factory = vmFactory)
+        val ongoingGradesVm: OngoingGradesViewModel = viewModel(factory = vmFactory)
         NavHost(
             navController = navController,
             startDestination = MainRoute,
@@ -180,7 +219,14 @@ fun HomeScaffold(loginData: LoginData) {
                 )
             }
             messagesGraph(modifier, messagesVm, countersVm, navController)
-            studentCardGraph(navController, modifier, loginData, eventsVm)
+            studentCardGraph(
+                navController,
+                modifier,
+                loginData,
+                eventsVm,
+                ongoingGradesVm,
+                pupilCardSettingsVm
+            )
         }
 
     }

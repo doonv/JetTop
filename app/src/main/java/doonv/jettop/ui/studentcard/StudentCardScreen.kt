@@ -27,8 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import doonv.jettop.R
 import doonv.jettop.data.LoginData
-import doonv.jettop.ui.theme.Symbols
 import doonv.jettop.ui.theme.GematriaUtils
+import doonv.jettop.ui.theme.Symbols
 
 @Composable
 fun StudentCardScreen(
@@ -70,12 +70,36 @@ fun StudentCardScreen(
         )
         MenuGrid(
             tiles = listOf(
-                MenuTile(R.string.discipline_events, Symbols.Filled.EventNote32, StudentCardRoute.DisciplineEvents),
-                MenuTile(R.string.non_discipline_events, Symbols.Filled.Campaign32, StudentCardRoute.NonLessonEvents),
-                MenuTile(R.string.accommodations, Symbols.Filled.Psychology32, StudentCardRoute.Accommodations),
-                MenuTile(R.string.private_lessons, Symbols.Filled.Group32, StudentCardRoute.PrivateLessons),
-                MenuTile(R.string.submission_and_exam_grades, Symbols.Filled.AssignmentTurnedIn32, StudentCardRoute.SubmissionAndExamGrades),
-                MenuTile(R.string.ongoing_grades, Symbols.Filled.Grading32, StudentCardRoute.OngoingGrades),
+                MenuTile(
+                    R.string.discipline_events,
+                    Symbols.Filled.EventNote32,
+                    StudentCardRoute.DisciplineEvents
+                ),
+                MenuTile(
+                    R.string.non_discipline_events,
+                    Symbols.Filled.Campaign32,
+                    StudentCardRoute.NonLessonEvents
+                ),
+                MenuTile(
+                    R.string.accommodations,
+                    Symbols.Filled.Psychology32,
+                    StudentCardRoute.Accommodations
+                ),
+                MenuTile(
+                    R.string.private_lessons,
+                    Symbols.Filled.Group32,
+                    StudentCardRoute.PrivateLessons
+                ),
+                MenuTile(
+                    R.string.submission_and_exam_grades,
+                    Symbols.Filled.AssignmentTurnedIn32,
+                    StudentCardRoute.SubmissionAndExamGrades
+                ),
+                MenuTile(
+                    R.string.ongoing_grades,
+                    Symbols.Filled.Grading32,
+                    StudentCardRoute.OngoingGrades
+                ),
             ),
             onNavigate = onNavigate,
         )

@@ -1,12 +1,17 @@
 package doonv.jettop.data
 
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 data class PupilCardSettingsRequest(
-    @SerialName("id") val studyYear: Int
+    @SerialName("id") val studyYear: Int? = null
 )
 
 @Serializable
@@ -36,7 +41,8 @@ data class PupilCardDivision(
     @SerialName("from_date") val fromDate: LocalDateTime,
     @SerialName("to_date") val toDate: LocalDateTime,
     val isPublic: Boolean,
-    val isCurrent: Int,
+    @Serializable(with = IntBooleanSerializer::class)
+    val isCurrent: Boolean,
     val viewOrder: Int,
 )
 
@@ -49,3 +55,14 @@ data class PupilCardChild(
     val classNum: Int,
     val cellphone: String? = null,
 )
+
+object IntBooleanSerializer : KSerializer<Boolean> {
+    override val descriptor =
+        PrimitiveSerialDescriptor("IntBoolean", PrimitiveKind.INT)
+
+    override fun deserialize(decoder: Decoder): Boolean =
+        decoder.decodeInt() != 0
+
+    override fun serialize(encoder: Encoder, value: Boolean) =
+        encoder.encodeInt(if (value) 1 else 0)
+}

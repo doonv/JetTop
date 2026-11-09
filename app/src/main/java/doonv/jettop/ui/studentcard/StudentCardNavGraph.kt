@@ -1,6 +1,13 @@
 package doonv.jettop.ui.studentcard
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -13,7 +20,10 @@ fun NavGraphBuilder.studentCardGraph(
     modifier: Modifier = Modifier,
     loginData: LoginData,
     eventsVm: DisciplineEventsViewModel,
+    ongoingGradesVm: OngoingGradesViewModel,
+    pupilCardSettingsVm: PupilCardSettingsViewModel
 ) {
+    val onBack: () -> Unit = { navController.popBackStack() }
     navigation<StudentCardGraph>(startDestination = StudentCardRoute.Menu) {
         composable<StudentCardRoute.Menu> {
             StudentCardScreen(
@@ -26,7 +36,7 @@ fun NavGraphBuilder.studentCardGraph(
             DisciplineEventsScreen(
                 modifier = modifier,
                 vm = eventsVm,
-                onBack = { navController.popBackStack() },
+                onBack = onBack,
             )
         }
 
@@ -34,7 +44,14 @@ fun NavGraphBuilder.studentCardGraph(
         composable<StudentCardRoute.Accommodations> { }
         composable<StudentCardRoute.PrivateLessons> { }
         composable<StudentCardRoute.SubmissionAndExamGrades> { }
-        composable<StudentCardRoute.OngoingGrades> { }
+        composable<StudentCardRoute.OngoingGrades> {
+            OngoingGradesScreen(
+                modifier = modifier,
+                vm = ongoingGradesVm,
+                settingsVm = pupilCardSettingsVm,
+                onBack = onBack
+            )
+        }
     }
 }
 
