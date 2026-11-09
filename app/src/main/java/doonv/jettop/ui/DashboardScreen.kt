@@ -17,9 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -27,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
@@ -52,14 +49,17 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import doonv.jettop.R
+import doonv.jettop.data.Cached
 import doonv.jettop.data.DaySchedule
 import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.HourData
 import doonv.jettop.data.Lesson
 import doonv.jettop.ui.components.ExpressivePullToRefreshBox
-import doonv.jettop.ui.components.UiStateContent
+import doonv.jettop.ui.components.uiStateContent
 import doonv.jettop.ui.studentcard.DisciplineEventsCard
+import doonv.jettop.ui.studentcard.DisciplineEventsViewModel
 import doonv.jettop.ui.theme.GoogleSans
 import doonv.jettop.ui.theme.GoogleSansHighlighted
 import doonv.jettop.ui.theme.LessonColors
@@ -69,49 +69,50 @@ import java.time.LocalDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     vm: DashboardViewModel,
+    eventsVm: DisciplineEventsViewModel,
     firstName: String,
 ) {
-    val state by vm.state.collectAsState()
+    val scheduleState by vm.state.collectAsStateWithLifecycle()
+    val eventsState by eventsVm.state.collectAsStateWithLifecycle()
 
     ExpressivePullToRefreshBox(
-        isRefreshing = state.isRefreshing,
-        onRefresh = { vm.refresh() },
+        isRefreshing = scheduleState.isRefreshing || eventsState.isRefreshing,
+        onRefresh = {
+            vm.refresh()
+            eventsVm.refresh()
+        },
     ) {
         Column(
             modifier = modifier
                 .fillMaxSize()
                 .statusBarsPadding()
         ) {
-            UiStateContent(state = state, onRetry = vm::refresh) { data ->
-                Dashboard(
-                    days = data.schedule.data,
-                    firstName = firstName,
-                    lastUpdated = data.schedule.updatedAt,
-                    disciplineEvents = data.disciplineEvents,
-                )
-            }
+            Dashboard(
+                scheduleState = scheduleState,
+                eventsState = eventsState,
+                firstName = firstName,
+                onRetrySchedule = vm::refresh,
+                onRetryEvents = eventsVm::refresh,
+            )
         }
     }
 }
 
 @Composable
 private fun Dashboard(
-    days: List<DaySchedule>,
+    scheduleState: UiState<Cached<List<DaySchedule>>>,
+    eventsState: UiState<DisciplineEvents>,
     firstName: String,
-    lastUpdated: Long,
-    disciplineEvents: DisciplineEvents,
+    onRetrySchedule: () -> Unit,
+    onRetryEvents: () -> Unit,
 ) {
-    if (days.isEmpty()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.no_data))
-        }
-        return
-    }
+    val schedule = (scheduleState as? UiState.Success)?.data
+    val days = schedule?.data.orEmpty()
+    val lastUpdated = schedule?.updatedAt
     val pagerState = rememberPagerState(
         pageCount = { days.size }, initialPage = when (LocalDate.now().dayOfWeek) {
             DayOfWeek.SUNDAY -> 0
@@ -134,14 +135,14 @@ private fun Dashboard(
     }
 
     val maxHeight = remember(days, hideZeroHour) {
-        days.maxOf { day ->
+        days.maxOfOrNull { day ->
             val hours = day.visibleHours(hideZeroHour)
             val emptyRows = hours.count { it.isEmpty }
             val lessonRows = hours.sumOf { if (it.isEmpty) 0 else it.schedule.size } + emptyRows
             lessonRows * (46.dp + 12.dp) +
                     emptyRows * (47.dp - 12.dp) +
                     (hours.size - 1).coerceAtLeast(0) * 1.dp
-        }
+        } ?: 0.dp
     }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) {
@@ -152,7 +153,8 @@ private fun Dashboard(
     }
     val justNow = stringResource(R.string.just_now)
     val rel = remember(lastUpdated, now) {
-        if (now - lastUpdated < 60_000L) justNow
+        if (lastUpdated == null) ""
+        else if (now - lastUpdated < 60_000L) justNow
         else DateUtils.getRelativeTimeSpanString(lastUpdated, now, DateUtils.MINUTE_IN_MILLIS)
             .toString()
     }
@@ -165,53 +167,75 @@ private fun Dashboard(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(0.dp, 16.dp)
                 )
-                DashboardDisciplineCard(disciplineEvents)
-                Text(
-                    stringResource(R.string.last_updated, rel),
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
-        stickyHeader {
-            PrimaryTabRow(
-                selectedTabIndex = pagerState.currentPage
-            ) {
-                val dayNames = stringArrayResource(R.array.days)
-                days.forEachIndexed { i, d ->
-                    val today = d.dayIndex - 1 == LocalDate.now().dayOfWeek.value % 7
-                    Tab(
-                        selected = i == pagerState.currentPage,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(i) } },
-                        // icon is used instead of text because text has a forced padding which cuts
-                        // off weekday names in English
-                        icon = {
-                            Text(
-                                text = dayNames[d.dayIndex - 1],
-                                maxLines = 1,
-                                style = MaterialTheme.typography.titleSmall.copy(
-                                    textAlign = TextAlign.Center,
-                                    fontWeight = if (today) FontWeight.Bold else FontWeight.Medium,
-                                ),
-                                fontFamily = if (today) GoogleSansHighlighted else GoogleSans,
-                                softWrap = false
-                            )
-                        }
-                    )
+        uiStateContent(eventsState, onRetryEvents) { events ->
+            item {
+                Box(Modifier.padding(horizontal = 8.dp)) {
+                    DashboardDisciplineCard(events)
                 }
             }
         }
-        item {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = maxHeight),
-                verticalAlignment = Alignment.Top
-            ) { page ->
-                val day = days.getOrNull(page) ?: return@HorizontalPager
-                val hours = day.visibleHours(hideZeroHour)
-                DayPage(hours, colors)
+        uiStateContent(scheduleState, onRetrySchedule) {
+            if (days.isEmpty()) {
+                item {
+                    Box(
+                        Modifier.fillMaxWidth().padding(32.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(stringResource(R.string.no_data))
+                    }
+                }
+                return@uiStateContent
+            }
+            item {
+                Text(
+                    stringResource(R.string.last_updated, rel),
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
+            stickyHeader {
+                PrimaryTabRow(
+                    selectedTabIndex = pagerState.currentPage
+                ) {
+                    val dayNames = stringArrayResource(R.array.days)
+                    days.forEachIndexed { i, d ->
+                        val today = d.dayIndex - 1 == LocalDate.now().dayOfWeek.value % 7
+                        Tab(
+                            selected = i == pagerState.currentPage,
+                            onClick = { scope.launch { pagerState.animateScrollToPage(i) } },
+                            // icon is used instead of text because text has a forced padding which cuts
+                            // off weekday names in English
+                            icon = {
+                                Text(
+                                    text = dayNames[d.dayIndex - 1],
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        textAlign = TextAlign.Center,
+                                        fontWeight = if (today) FontWeight.Bold else FontWeight.Medium,
+                                    ),
+                                    fontFamily = if (today) GoogleSansHighlighted else GoogleSans,
+                                    softWrap = false
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+            item {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = maxHeight),
+                    verticalAlignment = Alignment.Top
+                ) { page ->
+                    val day = days.getOrNull(page) ?: return@HorizontalPager
+                    val hours = day.visibleHours(hideZeroHour)
+                    DayPage(hours, colors)
+                }
             }
         }
     }

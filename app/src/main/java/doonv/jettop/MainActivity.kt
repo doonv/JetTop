@@ -158,7 +158,7 @@ fun HomeScaffold(loginData: LoginData) {
         }
         val dashboardFactory = remember(app, scheduleRepo, disciplineRepo) {
             viewModelFactory {
-                initializer { DashboardViewModel(app, scheduleRepo, disciplineRepo) }
+                initializer { DashboardViewModel(app, scheduleRepo) }
                 initializer { DisciplineEventsViewModel(app, disciplineRepo) }
             }
         }
@@ -175,6 +175,7 @@ fun HomeScaffold(loginData: LoginData) {
                 DashboardScreen(
                     modifier = modifier,
                     vm = dashboardVm,
+                    eventsVm = eventsVm,
                     firstName = loginData.firstName,
                 )
             }
