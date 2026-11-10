@@ -182,6 +182,12 @@ fun HomeScaffold(loginData: LoginData) {
                 cache = FileCache(
                     file = app.cacheDir.resolve("pupil_card_settings.json"),
                     serializer = Cached.serializer(PupilCardSettings.serializer())
+                ),
+                yearCache = FileCache(
+                    file = app.cacheDir.resolve("pupil_card_settings_by_year.json"),
+                    serializer = Cached.serializer(
+                        MapSerializer(Int.serializer(), PupilCardSettings.serializer())
+                    )
                 )
             )
         }

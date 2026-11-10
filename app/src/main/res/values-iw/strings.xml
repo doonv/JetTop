@@ -53,4 +53,7 @@
     <string name="justification_notes">הערות להצדקה: %1$s</string>
     <string name="no_events">אין אירועים</string>
     <string name="no_results">אין תוצאות עבור %1$s</string>
+    <string name="sort_by">מיון לפי</string>
+    <string name="newest">החדש ביותר</string>
+    <string name="oldest">הישן ביותר</string>
 </resources>

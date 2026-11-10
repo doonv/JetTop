@@ -53,4 +53,7 @@
     <string name="justification_notes">Justification notes: %1$s</string>
     <string name="no_events">No events</string>
     <string name="no_results">No results found for %1$s</string>
+    <string name="sort_by">Sort by</string>
+    <string name="newest">Newest</string>
+    <string name="oldest">Oldest</string>
 </resources>
