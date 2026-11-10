@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenuGroup
+import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -21,13 +23,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import doonv.jettop.R
 import doonv.jettop.data.Grade
+import doonv.jettop.data.PupilCardDivision
 import doonv.jettop.data.PupilCardSettings
 import doonv.jettop.ui.components.DotSeparatedText
 import doonv.jettop.ui.components.ExpressivePullToRefreshBox
@@ -60,8 +65,10 @@ fun OngoingGradesScreen(
     settingsVm: PupilCardSettingsViewModel,
     onBack: () -> Unit,
 ) {
-    val gradesState by vm.state.collectAsStateWithLifecycle()
+    val gradesState by vm.sortedGrades.collectAsStateWithLifecycle()
     val settingsState by settingsVm.state.collectAsStateWithLifecycle()
+    val divisions by vm.divisions.collectAsStateWithLifecycle()
+    val sortOrder by vm.sortOrder.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier,
@@ -77,12 +84,7 @@ fun OngoingGradesScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO */ }) {
-                        Icon(
-                            Symbols.Outlined.Sort24,
-                            contentDescription = stringResource(R.string.sort)
-                        )
-                    }
+                    GradesSortButton(sortOrder) { vm.sortOrder.value = it }
                 }
             )
         },
@@ -107,7 +109,7 @@ fun OngoingGradesScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     item {
-                        GradeChips(vm, settings)
+                        GradeChips(vm, settings, divisions)
                     }
 
                     uiStateContent(
@@ -123,7 +125,6 @@ fun OngoingGradesScreen(
                     }
                 }
             }
-
         }
     }
 }
@@ -132,12 +133,13 @@ fun OngoingGradesScreen(
 @Composable
 private fun GradeChips(
     vm: OngoingGradesViewModel,
-    settings: PupilCardSettings
+    settings: PupilCardSettings,
+    divisions: List<PupilCardDivision>
 ) {
     val selectedDivisionId by vm.selectedDivisionId.collectAsStateWithLifecycle()
     val selectedYear by vm.selectedYear.collectAsStateWithLifecycle()
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        settings.divisionsList.forEach { division ->
+        divisions.forEach { division ->
             val selected = selectedDivisionId == division.divisionId
 
             FilterChip(
@@ -282,5 +284,55 @@ private fun GradeBadge(
             color = foreground,
             maxLines = 1
         )
+    }
+}
+
+@Composable
+fun GradesSortButton(
+    selectedSort: GradeSortOrder,
+    onSortSelected: (GradeSortOrder) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                Symbols.Outlined.Sort24,
+                contentDescription = stringResource(R.string.sort)
+            )
+        }
+
+        DropdownMenuPopup(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuGroup(
+                shapes = MenuDefaults.groupShape(0, 1)
+            ) {
+                MenuDefaults.DropdownMenuGroupLabel {
+                    Text(stringResource(R.string.sort_by))
+                }
+
+                GradeSortOrder.entries.forEachIndexed { index, option ->
+                    SelectableDropdownMenuItem(
+                        selected = selectedSort == option,
+                        onClick = {
+                            onSortSelected(option)
+                            expanded = false
+                        },
+                        text = { Text(stringResource(option.resource)) },
+                        shapes = MenuDefaults.itemShape(
+                            index, GradeSortOrder.entries.size
+                        ),
+                        selectedLeadingIcon = {
+                            Icon(
+                                Symbols.Outlined.Check20,
+                                contentDescription = null
+                            )
+                        }
+                    )
+                }
+            }
+        }
     }
 }

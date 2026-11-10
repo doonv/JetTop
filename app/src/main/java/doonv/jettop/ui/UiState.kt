@@ -21,6 +21,12 @@ fun <T> UiState<T>.startRefreshing(): UiState<T> = when (this) {
     else -> UiState.Loading
 }
 
+fun <T, R> UiState<T>.map(transform: (T) -> R) = when (this) {
+    is UiState.Success -> UiState.Success(data = transform(data), isRefreshing)
+    is UiState.Error -> UiState.Error(error)
+    UiState.Loading -> UiState.Loading
+}
+
 suspend fun <T> UiState<T>.load(
     request: suspend () -> T,
 ): UiState<T> {
