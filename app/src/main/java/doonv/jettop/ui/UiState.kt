@@ -3,26 +3,32 @@ package doonv.jettop.ui
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
+enum class LoadTrigger {
+    Automatic,
+    Refresh
+}
+
 sealed interface UiState<out T> {
-    val isRefreshing: Boolean get() = (this as? Success)?.isRefreshing == true
+    val loadTrigger: LoadTrigger? get() = null
+    val isRefreshing: Boolean get() = loadTrigger == LoadTrigger.Refresh
 
     data object Loading : UiState<Nothing>
 
     data class Success<T>(
         val data: T,
-        override val isRefreshing: Boolean = false
+        override val loadTrigger: LoadTrigger? = null
     ) : UiState<T>
 
     data class Error(val error: Throwable) : UiState<Nothing>
 }
 
-fun <T> UiState<T>.startRefreshing(): UiState<T> = when (this) {
-    is UiState.Success -> copy(isRefreshing = true)
+fun <T> UiState<T>.startLoading(trigger: LoadTrigger): UiState<T> = when (this) {
+    is UiState.Success -> copy(loadTrigger = trigger)
     else -> UiState.Loading
 }
 
 fun <T, R> UiState<T>.map(transform: (T) -> R) = when (this) {
-    is UiState.Success -> UiState.Success(data = transform(data), isRefreshing)
+    is UiState.Success -> UiState.Success(data = transform(data), loadTrigger = loadTrigger)
     is UiState.Error -> UiState.Error(error)
     UiState.Loading -> UiState.Loading
 }
@@ -36,7 +42,7 @@ suspend fun <T> UiState<T>.load(
         throw e
     } catch (e: Exception) {
         if (e is IOException && this is UiState.Success) {
-            copy(isRefreshing = false)
+            copy(loadTrigger = null)
         } else {
             UiState.Error(e)
         }
@@ -47,7 +53,8 @@ suspend fun <T> UiState<T>.load(
 fun <A, B> mergeStates(first: UiState<A>, second: UiState<B>): UiState<Pair<A, B>> = when {
     first is UiState.Success && second is UiState.Success -> UiState.Success(
         data = first.data to second.data,
-        isRefreshing = first.isRefreshing || second.isRefreshing
+        loadTrigger = if (first.isRefreshing || second.isRefreshing) LoadTrigger.Refresh
+        else first.loadTrigger ?: second.loadTrigger
     )
     first is UiState.Error -> first
     second is UiState.Error -> second
