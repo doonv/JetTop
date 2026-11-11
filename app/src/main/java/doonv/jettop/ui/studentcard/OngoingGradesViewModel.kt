@@ -11,11 +11,11 @@ import doonv.jettop.data.PupilCardDivision
 import doonv.jettop.data.PupilCardSettings
 import doonv.jettop.data.PupilCardSettingsRepository
 import doonv.jettop.data.dataStore
+import doonv.jettop.ui.LoadTrigger
 import doonv.jettop.ui.Refreshable
 import doonv.jettop.ui.UiState
 import doonv.jettop.ui.load
 import doonv.jettop.ui.map
-import doonv.jettop.ui.startRefreshing
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,10 +24,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 
 
@@ -131,11 +130,11 @@ class OngoingGradesViewModel(
         }
 
         selectedYear.collectLatest { year ->
-            if (year != null) observeYearRefreshes(login, year, settings)
+            if (year != null) observeYearLoads(login, year, settings)
         }
     }
 
-    private suspend fun observeYearRefreshes(
+    private suspend fun observeYearLoads(
         login: LoginData,
         year: Int,
         defaultSettings: PupilCardSettings
@@ -148,18 +147,37 @@ class OngoingGradesViewModel(
         }
         gradesState.value = cachedGradesState(year, selectedDivisionId.value)
 
-        refreshRequests.map { true }.onStart { emit(false) }.collectLatest { forceRefresh ->
-            if (forceRefresh) gradesState.value = gradesState.value.startRefreshing()
+        val selectionLoads = selectedDivisionId.map { GradeLoad(it, LoadTrigger.Automatic) }
+        val manualLoads = refreshRequests.map {
+            GradeLoad(selectedDivisionId.value, LoadTrigger.Refresh)
+        }
+        merge(selectionLoads, manualLoads).collectLatest { request ->
+            loadGrades(login, year, cachedSettings, request)
+        }
+    }
 
-            when (val loaded = loadYearSettings(login, year, cachedSettings, forceRefresh)) {
-                is UiState.Success -> {
-                    yearSettings.value = loaded.data
-                    selectValidDivision(loaded.data.divisionsList)
-                    observeDivisionGrades(login, year, loaded.data, forceRefresh)
+    private data class GradeLoad(val division: Int?, val trigger: LoadTrigger)
+
+    private suspend fun loadGrades(
+        login: LoginData,
+        year: Int,
+        cachedSettings: PupilCardSettings?,
+        request: GradeLoad
+    ) {
+        gradesState.value = cachedGradesState(year, request.division, request.trigger)
+        when (val loaded = loadYearSettings(login, year, cachedSettings, request.trigger)) {
+            is UiState.Success -> {
+                yearSettings.value = loaded.data
+                selectValidDivision(loaded.data.divisionsList)
+                val division = selectedDivisionId.value
+                if (division == null) {
+                    gradesState.value = UiState.Success(emptyList())
+                } else if (division == request.division) {
+                    fetch(login, loaded.data, division, year)
                 }
-                is UiState.Error -> gradesState.value = loaded
-                UiState.Loading -> gradesState.value = UiState.Loading
             }
+            is UiState.Error -> gradesState.value = loaded
+            UiState.Loading -> gradesState.value = UiState.Loading
         }
     }
 
@@ -167,11 +185,11 @@ class OngoingGradesViewModel(
         login: LoginData,
         year: Int,
         fallback: PupilCardSettings?,
-        forceRefresh: Boolean
+        trigger: LoadTrigger
     ): UiState<PupilCardSettings> {
         val cachedSettings = cardSettingsRepo.cachedSettingsForYear(year) ?: fallback
         val cachedState = cachedSettings?.let { UiState.Success(it) } ?: UiState.Loading
-        if (!forceRefresh && cachedSettings != null) return cachedState
+        if (trigger != LoadTrigger.Refresh && cachedSettings != null) return cachedState
 
         return cachedState.load { cardSettingsRepo.settingsForYear(login, year) }
     }
@@ -184,27 +202,12 @@ class OngoingGradesViewModel(
         }
     }
 
-    private suspend fun observeDivisionGrades(
-        login: LoginData,
-        year: Int,
-        settings: PupilCardSettings,
-        forceRefresh: Boolean
-    ) {
-        selectedDivisionId.withIndex().collectLatest { (index, division) ->
-            if (division != null) {
-                val isManualRefresh = forceRefresh && index == 0
-                gradesState.value = cachedGradesState(year, division, isManualRefresh)
-                fetch(login, settings, division, year)
-            }
-        }
-    }
-
     private fun cachedGradesState(
         year: Int,
         division: Int?,
-        isRefreshing: Boolean = false
+        trigger: LoadTrigger? = null
     ): UiState<List<Grade>> = repository.grades.value?.data?.get(year)?.get(division)?.let {
-        UiState.Success(it, isRefreshing = isRefreshing)
+        UiState.Success(it, loadTrigger = trigger)
     } ?: UiState.Loading
 
     private fun defaultDivision(divisions: List<PupilCardDivision>?): Int? =

@@ -39,14 +39,14 @@ class DashboardViewModel(
                 if (login == null) {
                     state.value = UiState.Loading
                 } else {
-                    fetchSchedule(login)
+                    fetchSchedule(login, LoadTrigger.Automatic)
                 }
             }
         }
     }
 
-    private suspend fun fetchSchedule(login: LoginData) {
-        state.value = state.value.startRefreshing()
+    private suspend fun fetchSchedule(login: LoginData, trigger: LoadTrigger) {
+        state.value = state.value.startLoading(trigger)
         val result = state.value.load {
             scheduleRepository.refresh(login)
         }
@@ -61,7 +61,7 @@ class DashboardViewModel(
 
     override fun refresh() {
         viewModelScope.launch {
-            store.data.first().login?.let { fetchSchedule(it) }
+            store.data.first().login?.let { fetchSchedule(it, LoadTrigger.Refresh) }
         }
     }
 }
