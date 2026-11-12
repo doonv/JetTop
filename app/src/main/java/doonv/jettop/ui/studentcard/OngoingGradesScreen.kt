@@ -138,8 +138,8 @@ private fun GradeChips(
 ) {
     val selectedDivisionId by vm.selectedDivisionId.collectAsStateWithLifecycle()
     val selectedYear by vm.selectedYear.collectAsStateWithLifecycle()
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        divisions.forEach { division ->
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(divisions) { division ->
             val selected = selectedDivisionId == division.divisionId
 
             FilterChip(
