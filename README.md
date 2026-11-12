@@ -74,7 +74,7 @@ extract it, and install the extracted APK.
     - [ ] Filter/search events
   - [ ] Events outside of class
   - [ ] Private lessons
-  - [ ] Grades
+  - [x] Grades
 - [ ] Notifications
 - [ ] Settings
 
