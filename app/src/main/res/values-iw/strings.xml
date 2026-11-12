@@ -56,4 +56,6 @@
     <string name="sort_by">מיון לפי</string>
     <string name="newest">החדש ביותר</string>
     <string name="oldest">הישן ביותר</string>
+    <string name="highest_grade">הציון הגבוה ביותר</string>
+    <string name="lowest_grade">הציון הנמוך ביותר</string>
 </resources>

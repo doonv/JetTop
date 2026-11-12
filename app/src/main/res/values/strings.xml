@@ -56,4 +56,6 @@
     <string name="sort_by">Sort by</string>
     <string name="newest">Newest</string>
     <string name="oldest">Oldest</string>
+    <string name="highest_grade">Highest grade</string>
+    <string name="lowest_grade">Lowest grade</string>
 </resources>

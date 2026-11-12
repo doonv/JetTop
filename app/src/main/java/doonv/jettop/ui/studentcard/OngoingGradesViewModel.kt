@@ -32,7 +32,9 @@ import kotlinx.coroutines.launch
 
 enum class GradeSortOrder(val resource: Int) {
     Newest(R.string.newest),
-    Oldest(R.string.oldest)
+    Oldest(R.string.oldest),
+    HighestGrade(R.string.highest_grade),
+    LowestGrade(R.string.lowest_grade)
 }
 
 class OngoingGradesViewModel(
@@ -67,6 +69,16 @@ class OngoingGradesViewModel(
         when (sort) {
             GradeSortOrder.Newest -> grades.map { it -> it.sortedByDescending { it.date } }
             GradeSortOrder.Oldest -> grades.map { it -> it.sortedBy { it.date } }
+            GradeSortOrder.HighestGrade -> grades.map { grades ->
+                grades.sortedWith(
+                    compareBy<Grade> { it.grade == null }.thenByDescending { it.grade }
+                )
+            }
+            GradeSortOrder.LowestGrade -> grades.map { grades ->
+                grades.sortedWith(
+                    compareBy<Grade> { it.grade == null }.thenBy { it.grade }
+                )
+            }
         }
     }.stateIn(
         scope = viewModelScope,
