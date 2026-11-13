@@ -5,24 +5,23 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import doonv.jettop.data.ApiClient
 import doonv.jettop.data.LoginData
-import doonv.jettop.data.dataStore
+import doonv.jettop.data.loginDataStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MenuCountersViewModel(app: Application) : AndroidViewModel(app) {
-    private val store = app.applicationContext.dataStore
+    private val store = app.applicationContext.loginDataStore
 
     val unreadMessages: StateFlow<Int?> field = MutableStateFlow<Int?>(null)
 
     init {
         viewModelScope.launch {
-            store.data.map { it.login }.distinctUntilChanged().collect { loginData ->
+            store.data.distinctUntilChanged().collect { loginData ->
                 if (loginData == null) {
                     unreadMessages.value = null
                     return@collect
@@ -44,7 +43,7 @@ class MenuCountersViewModel(app: Application) : AndroidViewModel(app) {
 
     fun refresh() {
         viewModelScope.launch {
-            val login = store.data.map { it.login }.first() ?: run {
+            val login = store.data.first() ?: run {
                 unreadMessages.value = null
                 return@launch
             }

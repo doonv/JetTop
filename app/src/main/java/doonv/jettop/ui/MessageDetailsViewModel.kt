@@ -11,23 +11,22 @@ import doonv.jettop.data.ApiClient
 import doonv.jettop.data.AttachedFile
 import doonv.jettop.data.MessageDetails
 import doonv.jettop.data.MessageDetailsRequest
-import doonv.jettop.data.dataStore
+import doonv.jettop.data.loginDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.IOException
 
 class MessageDetailsViewModel(private val app: Application) : AndroidViewModel(app) {
-    private val store = app.applicationContext.dataStore
+    private val store = app.applicationContext.loginDataStore
     val state: StateFlow<UiState<MessageDetails>> field =
         MutableStateFlow<UiState<MessageDetails>>(UiState.Loading)
     fun load(messageId: String) {
         viewModelScope.launch {
             state.value = UiState.Loading
             state.value = state.value.load {
-                val login = checkNotNull(store.data.map { it.login }.first()) {
+                val login = checkNotNull(store.data.first()) {
                     "Login required to load a message"
                 }
                 val response = ApiClient.api.getMessage(
@@ -50,7 +49,7 @@ class MessageDetailsViewModel(private val app: Application) : AndroidViewModel(a
         // TODO: Change the notification to appear as if it came from
         //       JetTop, not from DownloadManager.
         viewModelScope.launch {
-            val login = store.data.map { it.login }.first() ?: return@launch
+            val login = store.data.first() ?: return@launch
             val request = DownloadManager.Request(file.fileUrl.toUri()).apply {
                 setTitle(file.fileName)
                 addRequestHeader("Cookie", login.cookie())

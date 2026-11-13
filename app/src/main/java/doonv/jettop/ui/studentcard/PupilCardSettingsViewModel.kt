@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import doonv.jettop.data.LoginData
 import doonv.jettop.data.PupilCardSettings
 import doonv.jettop.data.PupilCardSettingsRepository
-import doonv.jettop.data.dataStore
+import doonv.jettop.data.loginDataStore
 import doonv.jettop.ui.LoadTrigger
 import doonv.jettop.ui.Refreshable
 import doonv.jettop.ui.UiState
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -24,7 +23,7 @@ class PupilCardSettingsViewModel(
     app: Application,
     private val repository: PupilCardSettingsRepository
 ) : AndroidViewModel(app), Refreshable {
-    private val store = app.applicationContext.dataStore
+    private val store = app.applicationContext.loginDataStore
     val state: StateFlow<UiState<PupilCardSettings>> field =
     MutableStateFlow<UiState<PupilCardSettings>>(UiState.Loading)
 
@@ -41,7 +40,7 @@ class PupilCardSettingsViewModel(
             }
         }
         viewModelScope.launch {
-            store.data.map { it.login }.distinctUntilChanged().collect { login ->
+            store.data.distinctUntilChanged().collect { login ->
                 if (login != null) fetch(login, LoadTrigger.Automatic)
                 else {
                     repository.clear()
@@ -60,7 +59,7 @@ class PupilCardSettingsViewModel(
 
     override fun refresh() {
         viewModelScope.launch {
-            store.data.map { it.login }.first()?.let { fetch(it, LoadTrigger.Refresh) }
+            store.data.first()?.let { fetch(it, LoadTrigger.Refresh) }
         }
     }
 }

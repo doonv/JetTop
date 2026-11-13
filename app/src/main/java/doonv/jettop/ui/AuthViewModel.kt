@@ -7,7 +7,7 @@ import doonv.jettop.R
 import doonv.jettop.data.ApiClient
 import doonv.jettop.data.LoginData
 import doonv.jettop.data.LoginRequest
-import doonv.jettop.data.dataStore
+import doonv.jettop.data.loginDataStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,17 +26,17 @@ sealed interface AuthState {
 }
 
 class AuthViewModel(app: Application) : AndroidViewModel(app) {
-    private val store = app.applicationContext.dataStore
+    private val store = app.applicationContext.loginDataStore
     private val _login = MutableStateFlow(AuthState.LoggedOut(false))
 
     // Blocking here because fetching from data stores is extremely fast
     // but not blocking causes a flicker. And it requires more state
-    private val storedLogin = runBlocking { store.data.first().login }
+    private val storedLogin = runBlocking { store.data.first() }
 
     val state = combine(store.data, _login) { stored,
                                               login ->
-        if (!stored.login?.token.isNullOrBlank())
-            AuthState.LoggedIn(stored.login)
+        if (!stored?.token.isNullOrBlank())
+            AuthState.LoggedIn(stored)
         else login
     }
         .stateIn(
@@ -57,7 +57,7 @@ class AuthViewModel(app: Application) : AndroidViewModel(app) {
                 )
                 val data = resp.data
                 if (resp.status && data.token.isNotBlank() && data.institutionCode != 0) {
-                    store.updateData { it.copy(login = data) }
+                    store.updateData { data }
                     _login.value = AuthState.LoggedOut()
                 } else {
                     _login.value = AuthState.LoggedOut(

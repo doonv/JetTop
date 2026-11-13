@@ -10,7 +10,7 @@ import doonv.jettop.data.OngoingGradesRepository
 import doonv.jettop.data.PupilCardDivision
 import doonv.jettop.data.PupilCardSettings
 import doonv.jettop.data.PupilCardSettingsRepository
-import doonv.jettop.data.dataStore
+import doonv.jettop.data.loginDataStore
 import doonv.jettop.ui.LoadTrigger
 import doonv.jettop.ui.Refreshable
 import doonv.jettop.ui.UiState
@@ -42,7 +42,7 @@ class OngoingGradesViewModel(
     private val repository: OngoingGradesRepository,
     private val cardSettingsRepo: PupilCardSettingsRepository
 ) : AndroidViewModel(app), Refreshable {
-    private val store = app.applicationContext.dataStore
+    private val store = app.applicationContext.loginDataStore
     val gradesState: StateFlow<UiState<List<Grade>>> field =
     MutableStateFlow<UiState<List<Grade>>>(UiState.Loading)
 
@@ -112,7 +112,6 @@ class OngoingGradesViewModel(
 
         viewModelScope.launch {
             store.data
-                .map { it.login }
                 .distinctUntilChanged()
                 .collectLatest { login ->
                     if (login == null) {

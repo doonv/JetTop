@@ -13,7 +13,7 @@ import doonv.jettop.data.InboxMessage
 import doonv.jettop.data.LoginData
 import doonv.jettop.data.MessagesPagingSource
 import doonv.jettop.data.WebtopApi
-import doonv.jettop.data.dataStore
+import doonv.jettop.data.loginDataStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -31,11 +31,11 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class MessagesViewModel(app: Application) : AndroidViewModel(app) {
     private val api: WebtopApi = ApiClient.api
-    private val store = app.applicationContext.dataStore
+    private val store = app.applicationContext.loginDataStore
 
     val locallyRead: StateFlow<Set<String>> field = MutableStateFlow<Set<String>>(emptySet())
 
-    private val loginFlow = store.data.map { it.login }.distinctUntilChanged()
+    private val loginFlow = store.data.distinctUntilChanged()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val messages: Flow<PagingData<InboxMessage>> =
@@ -72,7 +72,7 @@ class MessagesViewModel(app: Application) : AndroidViewModel(app) {
     ): Flow<PagingData<InboxMessage>> = Pager(PagingConfig(ApiConfig.INBOX_PAGE_SIZE, prefetchDistance = 205)) {
         MessagesPagingSource(api, login.cookie(), 0, query, logout = {
             viewModelScope.launch {
-                store.updateData { it.copy(login = null) }
+                store.updateData { null }
             }
         })
     }.flow
