@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import doonv.jettop.R
+import doonv.jettop.SettingsRoute
 import doonv.jettop.data.LoginData
 import doonv.jettop.ui.theme.GematriaUtils
 import doonv.jettop.ui.theme.Symbols
@@ -34,7 +35,7 @@ import doonv.jettop.ui.theme.Symbols
 fun StudentCardScreen(
     modifier: Modifier = Modifier,
     loginData: LoginData,
-    onNavigate: (StudentCardRoute) -> Unit,
+    onNavigate: (Any) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -51,10 +52,10 @@ fun StudentCardScreen(
                 "${loginData.firstName} ${loginData.lastName}",
                 style = MaterialTheme.typography.headlineLargeEmphasized
             )
-            IconButton(onClick = {}) {
+            IconButton(onClick = { onNavigate(SettingsRoute) }) {
                 Icon(
                     Symbols.Filled.Settings24,
-                    contentDescription = "Settings"
+                    contentDescription = stringResource(R.string.settings)
                 )
             }
         }

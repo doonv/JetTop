@@ -50,6 +50,7 @@ import doonv.jettop.ui.components.DotSeparatedText
 import doonv.jettop.ui.components.ExpressivePullToRefreshBox
 import doonv.jettop.ui.components.UiStateContent
 import doonv.jettop.ui.components.uiStateContent
+import doonv.jettop.ui.formatYear
 import doonv.jettop.ui.rememberFullDateFormatter
 import doonv.jettop.ui.theme.Symbols
 import kotlinx.datetime.toJavaLocalDateTime
@@ -178,7 +179,7 @@ private fun GradeChips(
                     vm.selectedYear.value = year
                 },
                 label = {
-                    Text(year.toString())
+                    Text(formatYear(year))
                 },
                 leadingIcon = if (selected) {
                     {

@@ -58,4 +58,10 @@
     <string name="oldest">הישן ביותר</string>
     <string name="highest_grade">הציון הגבוה ביותר</string>
     <string name="lowest_grade">הציון הנמוך ביותר</string>
+    <string name="settings">הגדרות</string>
+    <string name="use_system_font">שימוש בגופן המערכת</string>
+    <string name="use_system_font_description">ייתכן שגופן המערכת אינו תומך בכל משקלי הגופן ושהטקסט לא יוצג כראוי.</string>
+    <string name="dates">תאריכים</string>
+    <string name="date_type_gregorian">לועזי</string>
+    <string name="date_type_hebrew">עברי</string>
 </resources>

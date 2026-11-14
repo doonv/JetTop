@@ -76,7 +76,10 @@ extract it, and install the extracted APK.
   - [ ] Private lessons
   - [x] Grades
 - [ ] Notifications
-- [ ] Settings
+- [x] Settings
+  - [x] Gregorian/Hebrew dates
+  - [ ] Rules
+  - [ ] Personal details
 
 ## LLM Use
 

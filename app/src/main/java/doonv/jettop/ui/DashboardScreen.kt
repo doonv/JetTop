@@ -60,14 +60,13 @@ import doonv.jettop.ui.components.ExpressivePullToRefreshBox
 import doonv.jettop.ui.components.uiStateContent
 import doonv.jettop.ui.studentcard.DisciplineEventsCard
 import doonv.jettop.ui.studentcard.DisciplineEventsViewModel
-import doonv.jettop.ui.theme.GoogleSans
-import doonv.jettop.ui.theme.GoogleSansHighlighted
 import doonv.jettop.ui.theme.LessonColors
+import doonv.jettop.ui.theme.LocalHighlightedFontFamily
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
 
 @Composable
 fun DashboardScreen(
@@ -180,7 +179,9 @@ private fun Dashboard(
             if (days.isEmpty()) {
                 item {
                     Box(
-                        Modifier.fillMaxWidth().padding(32.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(stringResource(R.string.no_data))
@@ -216,7 +217,11 @@ private fun Dashboard(
                                         textAlign = TextAlign.Center,
                                         fontWeight = if (today) FontWeight.Bold else FontWeight.Medium,
                                     ),
-                                    fontFamily = if (today) GoogleSansHighlighted else GoogleSans,
+                                    fontFamily = if (today) {
+                                        LocalHighlightedFontFamily.current
+                                    } else {
+                                        MaterialTheme.typography.titleSmall.fontFamily
+                                    },
                                     softWrap = false
                                 )
                             }

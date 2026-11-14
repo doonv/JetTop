@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import doonv.jettop.data.Cached
+import doonv.jettop.data.DateType
 import doonv.jettop.data.DaySchedule
 import doonv.jettop.data.DisciplineEvents
 import doonv.jettop.data.DisciplineEventsRepository
@@ -56,6 +58,7 @@ import doonv.jettop.data.OngoingGradesRepository
 import doonv.jettop.data.PupilCardSettings
 import doonv.jettop.data.PupilCardSettingsRepository
 import doonv.jettop.data.ScheduleRepository
+import doonv.jettop.data.Settings
 import doonv.jettop.ui.AuthState
 import doonv.jettop.ui.AuthViewModel
 import doonv.jettop.ui.DashboardScreen
@@ -66,6 +69,8 @@ import doonv.jettop.ui.MessageDetailsScreen
 import doonv.jettop.ui.MessageDetailsViewModel
 import doonv.jettop.ui.MessagesScreen
 import doonv.jettop.ui.MessagesViewModel
+import doonv.jettop.ui.SettingsScreen
+import doonv.jettop.ui.SettingsViewModel
 import doonv.jettop.ui.studentcard.DisciplineEventsViewModel
 import doonv.jettop.ui.studentcard.OngoingGradesViewModel
 import doonv.jettop.ui.studentcard.PupilCardSettingsViewModel
@@ -80,6 +85,9 @@ import kotlinx.serialization.builtins.serializer
 
 @Serializable
 data object MainRoute
+
+@Serializable
+data object SettingsRoute
 
 @Serializable
 data object MessagesRoute
@@ -106,25 +114,34 @@ enum class Destination(
     )
 }
 
+val LocalDateType = compositionLocalOf {
+    DateType.Gregorian
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            JetTopTheme {
-                val auth: AuthViewModel = viewModel()
-                val authState by auth.state.collectAsStateWithLifecycle()
-                when (val s = authState) {
-                    is AuthState.LoggedOut -> {
-                        LoginScreen(
-                            onLogin = { username, password -> auth.login(username, password) },
-                            s.isLoading,
-                            s.error
-                        )
-                    }
+            val settingsVm: SettingsViewModel = viewModel()
+            val settings by settingsVm.settings.collectAsStateWithLifecycle(initialValue = Settings())
+            CompositionLocalProvider(
+                LocalDateType provides settings.dateType,
+            ) {
+                JetTopTheme(settings.useSystemFont) {
+                    val auth: AuthViewModel = viewModel()
+                    val authState by auth.state.collectAsStateWithLifecycle()
+                    when (val s = authState) {
+                        is AuthState.LoggedOut -> {
+                            LoginScreen(
+                                onLogin = { username, password -> auth.login(username, password) },
+                                s.isLoading,
+                                s.error
+                            )
+                        }
 
-                    is AuthState.LoggedIn -> HomeScaffold(s.login)
+                        is AuthState.LoggedIn -> HomeScaffold(s.login, settingsVm)
+                    }
                 }
             }
         }
@@ -132,7 +149,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HomeScaffold(loginData: LoginData) {
+fun HomeScaffold(loginData: LoginData, settingsVm: SettingsViewModel) {
     val navController = rememberNavController()
     val countersVm: MenuCountersViewModel = viewModel()
 
@@ -215,7 +232,8 @@ fun HomeScaffold(loginData: LoginData) {
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }) {
+            popExitTransition = { ExitTransition.None }
+        ) {
             composable<MainRoute> {
                 DashboardScreen(
                     modifier = modifier,
@@ -223,6 +241,9 @@ fun HomeScaffold(loginData: LoginData) {
                     eventsVm = eventsVm,
                     firstName = loginData.firstName,
                 )
+            }
+            composable<SettingsRoute> {
+                SettingsScreen(settingsVm, { navController.popBackStack() }, modifier)
             }
             messagesGraph(modifier, messagesVm, countersVm, navController)
             studentCardGraph(

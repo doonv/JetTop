@@ -58,4 +58,10 @@
     <string name="oldest">Oldest</string>
     <string name="highest_grade">Highest grade</string>
     <string name="lowest_grade">Lowest grade</string>
+    <string name="settings">Settings</string>
+    <string name="use_system_font">Use system font</string>
+    <string name="use_system_font_description">The system font may not support all font weights, and may render incorrectly.</string>
+    <string name="dates">Dates</string>
+    <string name="date_type_gregorian">Gregorian</string>
+    <string name="date_type_hebrew">Hebrew</string>
 </resources>

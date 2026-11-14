@@ -71,7 +71,7 @@ import doonv.jettop.R
 import doonv.jettop.data.InboxMessage
 import doonv.jettop.ui.components.ExpressivePullToRefreshBox
 import doonv.jettop.ui.components.UiStateContent
-import doonv.jettop.ui.theme.GoogleSansHighlighted
+import doonv.jettop.ui.theme.LocalHighlightedFontFamily
 import doonv.jettop.ui.theme.Symbols
 import kotlinx.coroutines.launch
 
@@ -242,7 +242,7 @@ fun MessageRow(
                             addStyle(
                                 SpanStyle(
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontFamily = GoogleSansHighlighted
+                                    fontFamily = LocalHighlightedFontFamily.current
                                 ), start, end
                             )
                             start =

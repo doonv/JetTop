@@ -1,6 +1,7 @@
 package doonv.jettop.ui.studentcard
 
 import android.app.Application
+import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import doonv.jettop.R
@@ -30,7 +31,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-enum class GradeSortOrder(val resource: Int) {
+enum class GradeSortOrder(@param:StringRes val resource: Int) {
     Newest(R.string.newest),
     Oldest(R.string.oldest),
     HighestGrade(R.string.highest_grade),

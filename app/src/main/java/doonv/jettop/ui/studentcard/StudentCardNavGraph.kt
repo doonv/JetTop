@@ -1,19 +1,15 @@
 package doonv.jettop.ui.studentcard
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
+import android.icu.text.DateFormat
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import doonv.jettop.data.LoginData
 import kotlinx.serialization.Serializable
+import java.util.GregorianCalendar
 
 fun NavGraphBuilder.studentCardGraph(
     navController: NavHostController,

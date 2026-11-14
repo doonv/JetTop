@@ -76,7 +76,7 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
-).withFamily(GoogleSans) // TODO: allow users to turn Google Sans off in settings
+)
 
 fun Typography.withFamily(fontFamily: FontFamily): Typography {
     return Typography(
