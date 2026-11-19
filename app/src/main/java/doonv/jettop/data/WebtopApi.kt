@@ -130,7 +130,10 @@ object ApiClient {
                 chain.request().newBuilder()
                     .header(
                         "User-Agent",
-                        "JetTop/${BuildConfig.VERSION_NAME} " +
+                        // It seems WebTop only accepts UAs that:
+                        // - Start with "Mozilla/"
+                        // - Are at least 40 characters long
+                        "Mozilla/5.0 JetTop/${BuildConfig.VERSION_NAME} " +
                                 "(Android ${Build.VERSION.RELEASE}; rev ${BuildConfig.GIT_REV}; +https://github.com/doonv/JetTop)"
                     )
                     .header("Accept", "application/json, text/plain, */*")
